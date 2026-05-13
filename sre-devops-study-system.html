@@ -1,0 +1,2397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRE/DevOps — Sistema de Estudos</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f9fb;
+  --bg2: #ffffff;
+  --bg3: #f0f2f7;
+  --bg4: #e8eaf0;
+  --surface: #fafbfd;
+  --surface2: #f5f6fa;
+  --border: #e0e3eb;
+  --border2: #d0d4e0;
+  --text: #1a1d2e;
+  --text2: #3d4257;
+  --text3: #6b7280;
+  --accent: #7c5cff;
+  --accent2: #9b8dff;
+  --green: #10b981;
+  --green2: #059669;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --teal: #06b6d4;
+  --pink: #ec4899;
+  --mono: 'JetBrains Mono', monospace;
+  --head: 'Inter', sans-serif;
+  --body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body { 
+  background-color: #ffffff;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(124, 92, 255, 0.02),
+      rgba(124, 92, 255, 0.02) 2px,
+      transparent 2px,
+      transparent 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(124, 92, 255, 0.02),
+      rgba(124, 92, 255, 0.02) 2px,
+      transparent 2px,
+      transparent 4px
+    ),
+    radial-gradient(circle at 15% 80%, rgba(124, 92, 255, 0.04), transparent 50%),
+    radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.04), transparent 50%);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 24px 18px;
+}
+
+/* LAYOUT */
+.shell { display: flex; min-height: calc(100vh - 48px); max-width: 1400px; margin: 0 auto; gap: 32px; align-items: flex-start; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 300px; min-width: 300px; background: #ffffff;
+  border: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky; top: 24px; height: calc(100vh - 48px);
+  overflow-y: auto; z-index: 100;
+  transition: all .3s ease;
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(124, 92, 255, 0.08);
+}
+
+.sidebar-brand {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.brand-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, #4c3fd1, #7c6af5);
+  color: #fff; font-family: var(--head); font-size: 11px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 5px 10px; border-radius: 6px; margin-bottom: 10px;
+}
+.brand-title { font-family: var(--head); font-size: 24px; font-weight: 800; color: #1a1d2e; line-height: 1.2; text-align: center; text-shadow: none; letter-spacing: -0.5px; }
+.brand-sub { font-size: 13px; color: var(--text2); margin-top: 4px; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,.2); }
+
+.progress-global { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.progress-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; display: flex; justify-content: space-between; font-weight: 700; }
+.progress-bar { height: 4px; background: var(--bg4); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #7c5cff, #06b6d4); border-radius: 99px; transition: width .5s ease; box-shadow: 0 0 16px rgba(124, 92, 255, 0.4); }
+
+.nav-section { padding: 8px 0; }
+.nav-section-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .14em;
+  color: var(--text3); padding: 10px 20px 4px; font-weight: 600;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; cursor: pointer; border-radius: 8px;
+  transition: all .15s; color: var(--text2); font-size: 14px; font-weight: 500;
+  border-left: 3px solid transparent; text-decoration: none;
+}
+.nav-item:hover { background: rgba(124, 92, 255, 0.08); color: #1a1d2e; border-left-color: rgba(124, 92, 255, 0.3); }
+.nav-item.active { background: rgba(124, 92, 255, 0.12); color: #7c5cff; border-left-color: #7c5cff; }
+.nav-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); flex-shrink: 0; transition: background .2s; }
+.nav-item.done .dot { background: var(--green); }
+.nav-item.active .dot { background: var(--accent); }
+.nav-num { font-family: var(--mono); font-size: 10px; color: var(--text3); min-width: 18px; }
+
+/* MAIN */
+.main { flex: 1; }
+
+/* TOP BAR */
+.topbar {
+  padding: 18px 32px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: #ffffff; position: sticky; top: 0; z-index: 50;
+  border-radius: 20px;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 8px 24px rgba(124, 92, 255, 0.08);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.phase-tag {
+  font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 99px; border: 1px solid;
+}
+.phase-tag.phase-1 { color: #06b6d4; border-color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
+.phase-tag.phase-2 { color: #10b981; border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+.phase-tag.phase-3 { color: #7c5cff; border-color: #7c5cff; background: rgba(124, 92, 255, 0.1); }
+.phase-tag.phase-4 { color: #ec4899; border-color: #ec4899; background: rgba(236, 72, 153, 0.1); }
+.phase-tag.phase-5 { color: #f59e0b; border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+.topbar-title { font-family: var(--head); font-weight: 700; font-size: 17px; color: #1a1d2e; text-shadow: none; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 12px; font-size: 14px; font-family: var(--body); font-weight: 700; cursor: pointer; transition: all .2s; border: none; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(124, 92, 255, 0.15); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+.btn-outline:hover { background: var(--bg4); color: #1a1d2e; border-color: var(--accent); }
+.btn-primary { background: linear-gradient(135deg, #7c5cff, #9b8dff); color: #fff; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124, 92, 255, 0.3); }
+.btn-success { background: var(--green2); color: #fff; }
+
+/* CONTENT */
+.content { padding: 48px; max-width: 1080px; margin: 0 auto; background: #ffffff; border: 1px solid var(--border); border-radius: 32px; box-shadow: 0 12px 40px rgba(124, 92, 255, 0.08); backdrop-filter: blur(10px); }
+
+/* MODULE HEADER */
+.module-hero {
+  padding: 48px 40px 44px;
+  border-bottom: 1px solid var(--border);
+  background: #ffffff;
+  text-align: center;
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(124, 92, 255, 0.08);
+}
+.module-num { font-family: var(--mono); font-size: 12px; color: var(--text3); margin-bottom: 8px; font-weight: 600; text-shadow: none; }
+.module-title { font-family: var(--head); font-size: 44px; font-weight: 900; line-height: 1.15; margin-bottom: 10px; text-align: center; text-shadow: none; letter-spacing: -0.8px; }
+.module-desc { color: var(--text2); font-size: 16px; max-width: 640px; line-height: 1.7; font-weight: 500; }
+.module-meta { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
+.meta-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text3); }
+.meta-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* TABS */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 0 40px; }
+.tab {
+  padding: 14px 18px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--text3);
+  border-bottom: 3px solid transparent; transition: all .2s; user-select: none; white-space: nowrap;
+}
+.tab:hover { color: var(--text2); }
+.tab.active { color: #7c5cff; border-bottom-color: #7c5cff; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* SECTION HEADERS */
+.section-title {
+  font-family: var(--head); font-size: 32px; font-weight: 800;
+  margin: 0 0 10px; color: #1a1d2e;
+  display: flex; align-items: center; gap: 10px; justify-content: center; text-align: center;
+  text-shadow: none;
+  letter-spacing: -0.6px;
+}
+.section-icon { font-size: 20px; }
+.section-sub { color: var(--text2); font-size: 16px; margin-bottom: 28px; text-align: center; max-width: 760px; margin-left: auto; margin-right: auto; font-weight: 500; }
+
+/* CARDS */
+.card {
+  background: #ffffff; border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px 28px; margin-bottom: 16px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(124, 92, 255, 0.06);
+  backdrop-filter: blur(8px);
+}
+.card-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #1a1d2e; text-shadow: none; }
+.card-body { font-size: 15px; color: var(--text2); line-height: 1.7; font-weight: 500; }
+
+/* CODE */
+.code-block {
+  background: #f5f6fa; border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; margin: 16px 0;
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: #e8eaf0; border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.code-lang { font-family: var(--mono); color: var(--text3); }
+.code-copy { cursor: pointer; color: var(--text3); font-size: 11px; transition: color .15s; border: none; background: none; font-family: var(--body); padding: 0; }
+.code-copy:hover { color: #7c5cff; }
+pre { padding: 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.7; color: #1a1d2e; }
+.kw { color: #7c5cff; }
+.str { color: #10b981; }
+.cmt { color: #a0aec0; font-style: italic; }
+.cmd { color: #06b6d4; }
+.flag { color: #f59e0b; }
+.out { color: #10b981; }
+.err { color: #ef4444; }
+
+/* CALLOUTS */
+.callout {
+  display: flex; gap: 14px; padding: 18px 24px;
+  border-radius: 16px; margin: 16px 0; font-size: 15px;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(124, 92, 255, 0.08);
+  font-weight: 500;
+}
+.callout-info { background: rgba(124, 92, 255, 0.08); border: 1px solid rgba(124, 92, 255, 0.2); }
+.callout-warn { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); }
+.callout-danger { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); }
+.callout-success { background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); }
+.callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.callout-text { line-height: 1.65; color: var(--text2); }
+.callout-text strong { color: #1a1d2e; font-weight: 800; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { padding: 10px 14px; background: var(--bg4); color: #1a1d2e; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
+.td-cmd { font-family: var(--mono); color: #06b6d4; font-size: 12px; }
+.td-good { color: #10b981; font-size: 11px; font-weight: 700; }
+.td-bad { color: #ef4444; font-size: 11px; font-weight: 700; }
+
+/* QUIZ */
+.quiz-q { font-size: 15px; font-weight: 600; margin-bottom: 16px; line-height: 1.6; color: #1a1d2e; }
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px;
+  border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
+  transition: all .15s; font-size: 14px; color: var(--text2);
+  background: #ffffff;
+}
+.quiz-opt:hover { border-color: #7c5cff; color: #1a1d2e; background: var(--bg4); }
+.quiz-opt.correct { border-color: #10b981; background: rgba(16, 185, 129, 0.08); color: #1a1d2e; }
+.quiz-opt.wrong { border-color: #ef4444; background: rgba(239, 68, 68, 0.08); color: #1a1d2e; }
+.quiz-opt.disabled { pointer-events: none; }
+.opt-letter {
+  min-width: 24px; height: 24px; border-radius: 6px; background: var(--bg4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; font-family: var(--mono); color: var(--text3);
+  flex-shrink: 0; transition: all .15s;
+}
+.quiz-opt.correct .opt-letter { background: #10b981; color: #fff; }
+.quiz-opt.wrong .opt-letter { background: #ef4444; color: #fff; }
+.quiz-feedback { margin-top: 14px; padding: 14px 18px; border-radius: 10px; font-size: 14px; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.good { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; }
+.quiz-feedback.bad { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; }
+.quiz-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+.quiz-progress-text { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+
+/* LAB */
+.lab-box {
+  border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 16px 0; background: #ffffff;
+}
+.lab-header {
+  background: var(--bg4); padding: 12px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.lab-title { font-family: var(--head); font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #1a1d2e; }
+.lab-badge { font-size: 10px; padding: 3px 8px; border-radius: 99px; font-weight: 700; letter-spacing: .06em; }
+.badge-lab { background: rgba(6, 182, 212, 0.12); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.25); }
+.badge-ex { background: rgba(124, 92, 255, 0.12); color: #7c5cff; border: 1px solid rgba(124, 92, 255, 0.25); }
+.badge-hard { background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); }
+.badge-easy { background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25); }
+.lab-body { padding: 20px 24px; font-size: 14px; }
+.lab-steps { counter-reset: step; display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.lab-step {
+  counter-increment: step; display: flex; gap: 14px; align-items: flex-start;
+}
+.step-num {
+  min-width: 26px; height: 26px; border-radius: 8px;
+  background: #7c5cff; color: #fff; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  font-family: var(--mono);
+}
+.step-text { color: var(--text2); line-height: 1.65; padding-top: 2px; }
+.step-text code { font-family: var(--mono); background: var(--bg4); padding: 1px 6px; border-radius: 4px; color: #06b6d4; font-size: 12px; }
+
+/* CHECKLIST */
+.checklist { display: flex; flex-direction: column; gap: 8px; }
+.check-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  background: #ffffff; border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all .15s; font-size: 13px; user-select: none;
+}
+.check-item:hover { border-color: #7c5cff; }
+.check-item.checked { background: rgba(16, 185, 129, 0.06); border-color: rgba(16, 185, 129, 0.3); }
+.checkmark { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+.check-item.checked .checkmark { background: #10b981; border-color: #10b981; }
+.checkmark svg { display: none; }
+.check-item.checked .checkmark svg { display: block; }
+.check-label { color: var(--text2); }
+.check-item.checked .check-label { color: var(--text3); text-decoration: line-through; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 28px; margin: 16px 0; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 1px; background: var(--border); }
+.tl-item { position: relative; margin-bottom: 18px; }
+.tl-dot {
+  position: absolute; left: -25px; top: 3px; width: 14px; height: 14px;
+  border-radius: 50%; border: 2px solid #7c5cff; background: #ffffff;
+  display: flex; align-items: center; justify-content: center;
+}
+.tl-dot.done { background: #7c5cff; }
+.tl-time { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 3px; }
+.tl-event { font-size: 13px; color: var(--text2); }
+
+/* COMMAND GRID */
+.cmd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+.cmd-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 16px;
+}
+.cmd-name { font-family: var(--mono); color: var(--teal); font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.cmd-desc { font-size: 12px; color: var(--text3); line-height: 1.55; }
+.cmd-example { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 6px; background: var(--bg4); padding: 5px 8px; border-radius: 6px; }
+
+/* MINDMAP */
+.mindmap-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; overflow-x: auto; }
+
+/* SCORE */
+.score-panel {
+  text-align: center; padding: 40px 20px; background: #ffffff;
+  border: 1px solid var(--border); border-radius: 16px; margin-top: 20px; box-shadow: 0 6px 16px rgba(124, 92, 255, 0.08);
+}
+.score-ring {
+  width: 100px; height: 100px; border-radius: 50%;
+  border: 6px solid var(--border); display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px; position: relative;
+  font-family: var(--mono); font-size: 28px; font-weight: 700; color: #7c5cff;
+}
+.score-panel h3 { font-family: var(--head); font-size: 20px; font-weight: 800; margin-bottom: 6px; color: #1a1d2e; }
+.score-panel p { color: var(--text2); font-size: 14px; }
+
+/* GRID LAYOUTS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* TAG */
+.tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 9px; border-radius: 99px; font-weight: 600; letter-spacing: .04em; }
+.tag-purple { background: rgba(124, 92, 255, 0.12); color: #7c5cff; border: 1px solid rgba(124, 92, 255, 0.25); }
+.tag-teal { background: rgba(6, 182, 212, 0.12); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.25); }
+.tag-green { background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25); }
+.tag-amber { background: rgba(245, 158, 11, 0.12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25); }
+.tag-red { background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); }
+
+/* ICON (inline) */
+.ico { display: inline-block; width: 20px; text-align: center; }
+
+/* HIDDEN */
+.hidden { display: none !important; }
+
+/* INTRO PAGE */
+.intro-hero { padding: 60px 40px 40px; border-bottom: 1px solid var(--border); text-align: center; }
+.intro-hero h1 { font-family: var(--head); font-size: 56px; font-weight: 900; line-height: 1.05; margin-bottom: 14px; text-align: center; text-shadow: 0 8px 32px rgba(139, 126, 245, 0.35); letter-spacing: -1px; }
+.intro-hero h1 span { background: linear-gradient(90deg, #8b7ef5, #2dd9ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+.intro-hero p { color: var(--text2); font-size: 17px; max-width: 560px; line-height: 1.8; font-weight: 500; }
+
+.roadmap-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; margin: 24px 0; }
+.roadmap-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; margin: 24px 0; }
+.roadmap-phase {
+  border: 1px solid var(--border); border-radius: 22px; padding: 26px 18px;
+  cursor: pointer; transition: all .25s; position: relative; overflow: hidden;
+  text-align: center;
+  min-height: 190px;
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(124, 92, 255, 0.08);
+}
+.roadmap-phase:hover { border-color: #7c5cff; transform: translateY(-2px); }
+.roadmap-phase::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+.roadmap-phase.p1::before { background: linear-gradient(90deg, #06b6d4, #0891b2); }
+.roadmap-phase.p2::before { background: linear-gradient(90deg, #10b981, #059669); }
+.roadmap-phase.p3::before { background: linear-gradient(90deg, #7c5cff, #9b8dff); }
+.roadmap-phase.p4::before { background: linear-gradient(90deg, #ec4899, #db2777); }
+.roadmap-phase.p5::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.roadmap-phase .ph-num { font-family: var(--mono); font-size: 12px; color: var(--text3); margin-bottom: 8px; font-weight: 700; }
+.roadmap-phase .ph-title { font-family: var(--head); font-size: 18px; font-weight: 800; margin-bottom: 8px; text-shadow: none; }
+.roadmap-phase .ph-items { font-size: 13px; color: var(--text2); line-height: 1.8; font-weight: 500; }
+
+/* MOBILE MENU BTN */
+.menu-toggle { display: none; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(124, 92, 255, 0.3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(124, 92, 255, 0.5); }
+
+/* ANIMATIONS */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fadeIn .3s ease forwards; }
+
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .menu-toggle { display: flex; }
+  .roadmap-grid { grid-template-columns: 1fr 1fr; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .cmd-grid { grid-template-columns: 1fr; }
+  .content { padding: 24px 20px; }
+  .topbar { padding: 14px 20px; }
+  .module-hero { padding: 24px 20px; }
+  .tabs { padding: 0 20px; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-badge">⬡ SRE·DevOps</div>
+    <div class="brand-title">Sistema de Estudos</div>
+    <div class="brand-sub">Fundamentos que sustentam tudo</div>
+  </div>
+  <div class="progress-global">
+    <div class="progress-label">
+      <span>Progresso Geral</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Início</div>
+    <a class="nav-item active" onclick="showPage('home')">
+      <div class="dot"></div>
+      <span class="nav-num">00</span>
+      Visão Geral & Roadmap
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Fase 1 — Linux</div>
+    <a class="nav-item" onclick="showPage('mentality')">
+      <div class="dot"></div><span class="nav-num">01</span> Mentalidade SRE
+    </a>
+    <a class="nav-item" onclick="showPage('cpu')">
+      <div class="dot"></div><span class="nav-num">02</span> CPU & Processos
+    </a>
+    <a class="nav-item" onclick="showPage('memory')">
+      <div class="dot"></div><span class="nav-num">03</span> Memória
+    </a>
+    <a class="nav-item" onclick="showPage('disk')">
+      <div class="dot"></div><span class="nav-num">04</span> Disco & I/O
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Fase 2 — Rede</div>
+    <a class="nav-item" onclick="showPage('network')">
+      <div class="dot"></div><span class="nav-num">05</span> TCP/IP & DNS
+    </a>
+    <a class="nav-item" onclick="showPage('tools-net')">
+      <div class="dot"></div><span class="nav-num">06</span> Ferramentas de Rede
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Fase 3 — Observabilidade</div>
+    <a class="nav-item" onclick="showPage('logs')">
+      <div class="dot"></div><span class="nav-num">07</span> Logs
+    </a>
+    <a class="nav-item" onclick="showPage('metrics')">
+      <div class="dot"></div><span class="nav-num">08</span> Métricas & Alertas
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Fase 4 — Troubleshooting</div>
+    <a class="nav-item" onclick="showPage('troubleshoot')">
+      <div class="dot"></div><span class="nav-num">09</span> Método Universal
+    </a>
+    <a class="nav-item" onclick="showPage('incidents')">
+      <div class="dot"></div><span class="nav-num">10</span> Incidentes & Postmortem
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Fase 5 — Kubernetes</div>
+    <a class="nav-item" onclick="showPage('kubernetes')">
+      <div class="dot"></div><span class="nav-num">11</span> Kubernetes na Prática
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Avaliações</div>
+    <a class="nav-item" onclick="showPage('quiz-linux')">
+      <div class="dot"></div><span class="nav-num">Q1</span> Quiz — Linux & Memória
+    </a>
+    <a class="nav-item" onclick="showPage('quiz-net')">
+      <div class="dot"></div><span class="nav-num">Q2</span> Quiz — Rede & DNS
+    </a>
+    <a class="nav-item" onclick="showPage('quiz-obs')">
+      <div class="dot"></div><span class="nav-num">Q3</span> Quiz — Troubleshooting
+    </a>
+    <a class="nav-item" onclick="showPage('cheatsheet')">
+      <div class="dot"></div><span class="nav-num">★</span> Cheatsheet Geral
+    </a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="btn btn-outline menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="phase-tag phase-1" id="topbar-phase">Início</div>
+    <div class="topbar-title" id="topbar-title">Visão Geral</div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-outline" onclick="markDone()" id="mark-btn">✓ Marcar Concluído</button>
+  </div>
+</div>
+
+<!-- PAGES CONTAINER -->
+<div id="pages">
+
+<!-- ══════════════════════════ PAGE: HOME ══════════════════════════ -->
+<div id="page-home" class="page-wrapper">
+  <div class="intro-hero">
+    <h1>Fundamentos que<br><span>sustentam tudo</span></h1>
+    <p>Um sistema de estudos completo para SRE, DevOps e Troubleshooting — do Linux e redes até Kubernetes e postmortems.</p>
+    <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;">
+      <span class="tag tag-purple">12 Módulos</span>
+      <span class="tag tag-teal">3 Quizzes</span>
+      <span class="tag tag-green">Laboratórios práticos</span>
+      <span class="tag tag-amber">Cheatsheet completo</span>
+    </div>
+  </div>
+  <div class="content">
+    <div class="section-title">🗺️ Roadmap de Aprendizado</div>
+    <div class="section-sub">Cinco fases progressivas. Cada uma constrói sobre a anterior.</div>
+
+    <div class="roadmap-grid">
+      <div class="roadmap-phase p1" onclick="showPage('cpu')">
+        <div class="ph-num">FASE 01</div>
+        <div class="ph-title">Linux</div>
+        <div class="ph-items">CPU & processos<br>Memória<br>Disco & I/O<br>Permissões</div>
+      </div>
+      <div class="roadmap-phase p2" onclick="showPage('network')">
+        <div class="ph-num">FASE 02</div>
+        <div class="ph-title">Rede</div>
+        <div class="ph-items">TCP/IP<br>DNS<br>HTTP/TLS<br>Ferramentas</div>
+      </div>
+      <div class="roadmap-phase p3" onclick="showPage('logs')">
+        <div class="ph-num">FASE 03</div>
+        <div class="ph-title">Observabilidade</div>
+        <div class="ph-items">Logs<br>Métricas<br>Traces<br>Alertas</div>
+      </div>
+      <div class="roadmap-phase p4" onclick="showPage('troubleshoot')">
+        <div class="ph-num">FASE 04</div>
+        <div class="ph-title">Troubleshooting</div>
+        <div class="ph-items">Método<br>Hipóteses<br>Incidentes<br>Postmortem</div>
+      </div>
+      <div class="roadmap-phase p5" onclick="showPage('kubernetes')">
+        <div class="ph-num">FASE 05</div>
+        <div class="ph-title">Kubernetes</div>
+        <div class="ph-items">Pods<br>Services<br>Ingress<br>Debug</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top:24px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-text"><strong>Como estudar:</strong> Siga a ordem do roadmap. Cada módulo tem teoria, exemplos de código, laboratórios práticos e um quiz. Marque como concluído ao terminar cada seção.</div>
+    </div>
+
+    <div class="section-title" style="margin-top:36px;">🧠 A Pirâmide da Base Sólida</div>
+    <div class="section-sub">Por que os fundamentos vêm antes das ferramentas</div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;text-align:center;margin-bottom:16px;">
+      <svg viewBox="0 0 500 240" width="100%" style="max-width:500px;">
+        <defs>
+          <linearGradient id="pyr" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7c6af5"/>
+            <stop offset="100%" stop-color="#22d3ee"/>
+          </linearGradient>
+        </defs>
+        <!-- Pyramid layers -->
+        <polygon points="250,20 50,220 450,220" fill="none" stroke="#2a2a3d" stroke-width="1"/>
+        <!-- Layer 5 - top -->
+        <polygon points="250,20 210,80 290,80" fill="rgba(124,106,245,0.3)" stroke="#7c6af5" stroke-width="1"/>
+        <text x="250" y="58" text-anchor="middle" fill="#a0a0b8" font-size="11" font-family="IBM Plex Sans">Cloud/K8s</text>
+        <!-- Layer 4 -->
+        <polygon points="210,80 170,130 330,130 290,80" fill="rgba(244,114,182,0.2)" stroke="#f472b6" stroke-width="1"/>
+        <text x="250" y="112" text-anchor="middle" fill="#a0a0b8" font-size="11" font-family="IBM Plex Sans">Automação</text>
+        <!-- Layer 3 -->
+        <polygon points="170,130 140,170 360,170 330,130" fill="rgba(34,211,238,0.2)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="250" y="155" text-anchor="middle" fill="#a0a0b8" font-size="11" font-family="IBM Plex Sans">Observabilidade</text>
+        <!-- Layer 2 -->
+        <polygon points="140,170 100,210 400,210 360,170" fill="rgba(61,214,140,0.2)" stroke="#3dd68c" stroke-width="1"/>
+        <text x="250" y="196" text-anchor="middle" fill="#a0a0b8" font-size="11" font-family="IBM Plex Sans">Rede</text>
+        <!-- Layer 1 - base -->
+        <polygon points="100,210 50,220 450,220 400,210" fill="rgba(124,106,245,0.35)" stroke="#7c6af5" stroke-width="1.5"/>
+        <text x="250" y="217" text-anchor="middle" fill="#e8e8f0" font-size="12" font-family="IBM Plex Sans" font-weight="600">Linux / Sistema Operacional</text>
+      </svg>
+    </div>
+
+    <div class="grid-3" style="margin-top:20px;">
+      <div class="card card-accent">
+        <div class="card-title">🔍 Investigador</div>
+        <div class="card-body">Analisa sintomas, coleta evidências, encontra causa raiz</div>
+      </div>
+      <div class="card card-teal">
+        <div class="card-title">🏗️ Arquiteto</div>
+        <div class="card-body">Entende sistemas, prevê falhas, projeta resiliência</div>
+      </div>
+      <div class="card card-green">
+        <div class="card-title">🤖 Automatizador</div>
+        <div class="card-body">Automatiza o que entende, não o que ignora</div>
+      </div>
+    </div>
+
+    <div class="callout callout-warn" style="margin-top:24px;">
+      <div class="callout-icon">⚡</div>
+      <div class="callout-text"><strong>Regra de Ouro:</strong> Sem Linux sólido, Kubernetes vira mágica. Sem rede, cloud vira abstração. Os fundamentos sustentam <em>tudo</em>.</div>
+    </div>
+
+    <div style="margin-top:36px;text-align:center;">
+      <button class="btn btn-primary" onclick="showPage('mentality')" style="padding:12px 28px;font-size:15px;">Começar → Módulo 01</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: MENTALITY ══════════════════════════ -->
+<div id="page-mentality" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 01 · FASE 1 — LINUX</div>
+    <div class="module-title">Mentalidade SRE</div>
+    <div class="module-desc">O trabalho real não é decorar comandos — é entender sistemas, detectar padrões e investigar causas raiz.</div>
+    <div class="module-meta">
+      <div class="meta-item"><div class="meta-dot" style="background:var(--teal)"></div>Iniciante</div>
+      <div class="meta-item"><div class="meta-dot" style="background:var(--accent)"></div>~30 min</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'theory')">📖 Teoria</div>
+    <div class="tab" onclick="switchTab(this,'practice')">🧪 Prática</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-theory">
+      <div class="section-title">🎯 O que realmente importa</div>
+      <div class="section-sub">Antes de qualquer comando, existe algo mais importante: a mentalidade certa.</div>
+      <div class="card card-accent">
+        <div class="card-title">O trabalho real de Infra/SRE/DevOps</div>
+        <div class="card-body">
+          Não é decorar Kubernetes. Não é memorizar YAML. É <strong style="color:var(--text)">entender sistemas</strong>, detectar padrões, investigar sintomas, encontrar causa raiz, reduzir impacto e evitar recorrência.
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:32px;">🔥 Método: Hipóteses</div>
+      <div class="card card-teal">
+        <div class="card-title">Analistas fortes trabalham por hipóteses, não por adivinhação</div>
+        <div class="card-body" style="margin-top:8px;">
+          <div class="timeline">
+            <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Hipótese 1</div><div class="tl-event">"A lentidão pode ser DNS" → valido com <code style="font-family:var(--mono);color:var(--teal)">dig</code> e <code style="font-family:var(--mono);color:var(--teal)">curl</code></div></div>
+            <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Descarte</div><div class="tl-event">DNS descartado (latência normal) → próxima hipótese</div></div>
+            <div class="tl-item"><div class="tl-dot"></div><div class="tl-time">Hipótese 2</div><div class="tl-event">"Pode ser banco lento" → valido com slow query log</div></div>
+            <div class="tl-item"><div class="tl-dot"></div><div class="tl-time">Causa Raiz</div><div class="tl-event">Lock no banco por query sem índice → encontrada!</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-danger" style="margin-top:20px;">
+        <div class="callout-icon">🚨</div>
+        <div class="callout-text"><strong>Erro clássico:</strong> Reiniciar o serviço sem investigar primeiro. Restart mascara o sintoma e destrói evidências. SEMPRE colete logs, métricas e estado ANTES de reiniciar.</div>
+      </div>
+
+      <div class="section-title" style="margin-top:32px;">📋 Frases que carregam experiência operacional</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="card card-sm" style="border-left:3px solid var(--teal)"><strong style="color:var(--teal)">Sintoma não é causa.</strong><div class="card-body" style="margin-top:4px;">CPU alta, timeout, 500 — são sintomas. A causa pode estar em qualquer camada.</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--amber)"><strong style="color:var(--amber)">Restart apaga evidência.</strong><div class="card-body" style="margin-top:4px;">Capture logs e estado antes de qualquer intervenção.</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--accent)"><strong style="color:var(--accent2)">Hipótese sem validação é chute.</strong><div class="card-body" style="margin-top:4px;">Meça. Prove. Descarte. Avance.</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--green)"><strong style="color:var(--green)">Observabilidade reduz medo.</strong><div class="card-body" style="margin-top:4px;">Quem não sabe observar o sistema trabalha no escuro.</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--pink)"><strong style="color:var(--pink)">Timeouts geram cascatas.</strong><div class="card-body" style="margin-top:4px;">Sistemas distribuídos amplificam falhas em cadeia.</div></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-practice">
+      <div class="section-title">🧪 Exercício Mental: Os 5 Porquês</div>
+      <div class="section-sub">Técnica poderosa para chegar à causa raiz real.</div>
+      <div class="card" style="background:var(--bg2);border:1px solid var(--border2);">
+        <div class="card-title" style="color:var(--accent2)">Cenário: Sistema caiu</div>
+        <div class="timeline" style="margin-top:16px;">
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Por quê?</div><div class="tl-event">Memória acabou</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Por quê?</div><div class="tl-event">Vazamento de memória</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Por quê?</div><div class="tl-event">Cache sem limite configurado</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Por quê?</div><div class="tl-event">Feature nova implementada sem review</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Por quê?</div><div class="tl-event"><strong style="color:var(--green)">Causa raiz: Processo sem review de arquitetura</strong></div></div>
+        </div>
+      </div>
+      <div class="callout callout-success">
+        <div class="callout-icon">✅</div>
+        <div class="callout-text"><strong>Agora chegamos em processo.</strong> A solução não é só corrigir o bug — é implementar review de arquitetura para novas features.</div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist do Módulo 01</div>
+      <div class="checklist" id="cl-mentality">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo que sintoma ≠ causa raiz</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei aplicar a técnica dos 5 Porquês</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo por que restart apaga evidências</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei trabalhar por hipóteses e descartá-las sistematicamente</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo a pirâmide de fundamentos</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: CPU ══════════════════════════ -->
+<div id="page-cpu" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 02 · FASE 1 — LINUX</div>
+    <div class="module-title">CPU & Processos</div>
+    <div class="module-desc">CPU alta nem sempre é problema. Aprenda a interpretar load average, iowait, syscalls e identificar gargalos reais.</div>
+    <div class="module-meta">
+      <div class="meta-item"><div class="meta-dot" style="background:var(--teal)"></div>Intermediário</div>
+      <div class="meta-item"><div class="meta-dot" style="background:var(--accent)"></div>~45 min</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'theory')">📖 Teoria</div>
+    <div class="tab" onclick="switchTab(this,'commands')">⚙️ Comandos</div>
+    <div class="tab" onclick="switchTab(this,'lab')">🧪 Laboratório</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-theory">
+      <div class="callout callout-info">
+        <div class="callout-icon">💡</div>
+        <div class="callout-text"><strong>CPU alta NÃO significa necessariamente problema.</strong> A pergunta certa é: CPU alta está impactando o tempo de resposta?</div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">📊 Interpretando o comando top</div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmd">top</span>
+
+<span class="cmt"># Output típico:</span>
+<span class="out">top - 14:32:01 up 5 days, load average: 2.10, 1.85, 1.42
+Tasks: 312 total, 2 running, 310 sleeping
+%Cpu(s): 45.2 us, 12.1 sy, 0.0 ni, 30.5 id, 8.4 wa, 0.0 hi, 3.8 si
+MiB Mem: 16384.0 total, 2048.0 free, 12000.0 used, 2336.0 buff/cache
+MiB Swap: 4096.0 total, 3800.0 free, 296.0 used</span></pre>
+      </div>
+
+      <div class="grid-2" style="margin:20px 0;">
+        <div class="card card-sm" style="border-left:3px solid var(--teal)">
+          <div class="card-title" style="color:var(--teal)">us — User space</div>
+          <div class="card-body">Tempo executando aplicação. <strong style="color:var(--amber)">Alta = aplicação consumindo CPU</strong>. Investigue qual processo.</div>
+        </div>
+        <div class="card card-sm" style="border-left:3px solid var(--accent2)">
+          <div class="card-title" style="color:var(--accent2)">sy — Kernel/system</div>
+          <div class="card-body"><strong style="color:var(--amber)">Alta = syscalls, IO, networking, kernel pressure</strong>. Pode indicar problema de driver ou IO intenso.</div>
+        </div>
+        <div class="card card-sm" style="border-left:3px solid var(--red)">
+          <div class="card-title" style="color:var(--red)">wa — I/O wait</div>
+          <div class="card-body">CPU esperando disco. <strong style="color:var(--red)">MUITO importante!</strong> Alta = disco lento, storage ruim, gargalo IO.</div>
+        </div>
+        <div class="card card-sm" style="border-left:3px solid var(--green)">
+          <div class="card-title" style="color:var(--green)">id — Idle</div>
+          <div class="card-body">CPU ociosa. Se baixo, sistema está sob carga. Se alto mesmo com lentidão, o problema não é CPU.</div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">⚠️ Load Average — o mais incompreendido</div>
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-text"><strong>Load Average NÃO é uso de CPU.</strong> É a quantidade de processos na fila (esperando CPU + esperando I/O). Um sistema de 4 cores com load 4.0 está saturado. Com load 2.0 ainda tem folga.</div>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Ver load e número de cores</span>
+<span class="cmd">uptime</span>
+<span class="out">14:32 up 5 days, load average: 2.10, 1.85, 1.42
+<span class="cmt">                              ^1min  ^5min  ^15min</span></span>
+
+<span class="cmd">nproc</span>  <span class="cmt"># número de CPUs/cores</span>
+<span class="out">4</span>
+
+<span class="cmt"># Regra: load / nproc > 1.0 = saturação</span>
+<span class="cmt"># 2.10 / 4 = 0.52 = OK neste caso</span></pre>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">🔬 ps — Listar processos</div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Todos os processos com detalhes</span>
+<span class="cmd">ps</span> <span class="flag">aux</span>
+
+<span class="cmt"># Ordenar por CPU (mais consumidores primeiro)</span>
+<span class="cmd">ps</span> <span class="flag">aux --sort=-%cpu</span> | <span class="cmd">head</span> <span class="flag">-10</span>
+
+<span class="cmt"># Árvore de processos</span>
+<span class="cmd">pstree</span> <span class="flag">-p</span>
+
+<span class="cmt"># Processo específico por nome</span>
+<span class="cmd">pgrep</span> <span class="flag">-la</span> nginx</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-commands">
+      <div class="section-title">⚙️ Comandos Essenciais — CPU</div>
+      <div class="cmd-grid">
+        <div class="cmd-card"><div class="cmd-name">top</div><div class="cmd-desc">Visão geral em tempo real de CPU, memória e processos</div><div class="cmd-example">top -u www-data</div></div>
+        <div class="cmd-card"><div class="cmd-name">htop</div><div class="cmd-desc">Versão interativa e colorida do top. Permite matar processos</div><div class="cmd-example">htop -d 2</div></div>
+        <div class="cmd-card"><div class="cmd-name">ps aux</div><div class="cmd-desc">Snapshot de todos os processos com CPU e memória</div><div class="cmd-example">ps aux --sort=-%cpu | head</div></div>
+        <div class="cmd-card"><div class="cmd-name">uptime</div><div class="cmd-desc">Load average dos últimos 1, 5 e 15 minutos</div><div class="cmd-example">uptime</div></div>
+        <div class="cmd-card"><div class="cmd-name">vmstat</div><div class="cmd-desc">Estatísticas de CPU, memória, IO e processos</div><div class="cmd-example">vmstat 1 5</div></div>
+        <div class="cmd-card"><div class="cmd-name">strace</div><div class="cmd-desc">Rastreia chamadas de sistema de um processo</div><div class="cmd-example">strace -p 1234</div></div>
+        <div class="cmd-card"><div class="cmd-name">pidstat</div><div class="cmd-desc">Estatísticas detalhadas por processo</div><div class="cmd-example">pidstat 1 5</div></div>
+        <div class="cmd-card"><div class="cmd-name">mpstat</div><div class="cmd-desc">CPU por núcleo. Detecta desbalanceamento</div><div class="cmd-example">mpstat -P ALL 1</div></div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">🔍 Tabela de Sintomas de CPU</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Sintoma</th><th>Métrica</th><th>Possível Causa</th><th>Ação</th></tr>
+          <tr><td>Lentidão geral</td><td class="td-cmd">us alto</td><td>App consumindo CPU</td><td><code class="td-cmd">ps aux --sort=-%cpu</code></td></tr>
+          <tr><td>Lentidão geral</td><td class="td-cmd">wa alto</td><td>Disco saturado</td><td><code class="td-cmd">iostat -xz 1</code></td></tr>
+          <tr><td>Sistema travado</td><td class="td-cmd">sy alto</td><td>Kernel/syscall pressure</td><td><code class="td-cmd">strace -p PID</code></td></tr>
+          <tr><td>Load alto, CPU idle</td><td class="td-cmd">load > nproc</td><td>Processos bloqueados em I/O</td><td><code class="td-cmd">vmstat 1</code></td></tr>
+          <tr><td>Processo 100% CPU</td><td class="td-cmd">us 100</td><td>Loop infinito / bug</td><td><code class="td-cmd">top → pstack PID</code></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-lab">
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🧪 Lab 01 — Identificar processo consumindo CPU<span class="lab-badge badge-lab" style="margin-left:8px;">LAB</span></div>
+          <span class="lab-badge badge-easy">FÁCIL</span>
+        </div>
+        <div class="lab-body">
+          <div class="card-body">Simule um processo de CPU alta e investigue-o usando as ferramentas certas.</div>
+          <div class="lab-steps">
+            <div class="lab-step"><div class="step-num">1</div><div class="step-text">Gere carga de CPU artificialmente: <code>stress --cpu 2 --timeout 60</code> (instale com <code>apt install stress</code>)</div></div>
+            <div class="lab-step"><div class="step-num">2</div><div class="step-text">Em outro terminal, execute <code>top</code> e observe os campos <code>us</code> e <code>load average</code></div></div>
+            <div class="lab-step"><div class="step-num">3</div><div class="step-text">Execute <code>ps aux --sort=-%cpu | head -5</code> e identifique o PID do processo stress</div></div>
+            <div class="lab-step"><div class="step-num">4</div><div class="step-text">Use <code>strace -p PID</code> para ver as syscalls do processo</div></div>
+            <div class="lab-step"><div class="step-num">5</div><div class="step-text">Execute <code>vmstat 1 10</code> e observe a coluna <code>us</code> mudando em tempo real</div></div>
+            <div class="lab-step"><div class="step-num">6</div><div class="step-text">Mate o stress com <code>kill PID</code> e observe o sistema normalizar</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lab-box" style="margin-top:16px;">
+        <div class="lab-header">
+          <div class="lab-title">🔥 Lab 02 — Simular I/O Wait alto<span class="lab-badge badge-lab" style="margin-left:8px;">LAB</span></div>
+          <span class="lab-badge badge-hard">AVANÇADO</span>
+        </div>
+        <div class="lab-body">
+          <div class="lab-steps">
+            <div class="lab-step"><div class="step-num">1</div><div class="step-text">Gere I/O intenso: <code>dd if=/dev/zero of=/tmp/bigfile bs=1M count=2000 &</code></div></div>
+            <div class="lab-step"><div class="step-num">2</div><div class="step-text">Execute <code>top</code> e observe o campo <code>wa</code> subir</div></div>
+            <div class="lab-step"><div class="step-num">3</div><div class="step-text">Execute <code>iostat -xz 1</code> e observe as colunas <code>%util</code> e <code>await</code></div></div>
+            <div class="lab-step"><div class="step-num">4</div><div class="step-text">Tente reproduzir a lentidão do sistema e documente o impacto</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — CPU & Processos</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei interpretar us, sy, wa, id no top</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo load average e como calcular saturação por nproc</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo identificar processo com maior CPU com ps aux</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei usar strace para investigar syscalls de um processo</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo distinguir CPU alta por aplicação vs CPU alta por I/O</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: MEMORY ══════════════════════════ -->
+<div id="page-memory" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 03 · FASE 1 — LINUX</div>
+    <div class="module-title">Memória</div>
+    <div class="module-desc">O erro clássico: "memória usada = problema". Linux usa RAM para cache — isso é bom. Aprenda o que realmente importa.</div>
+    <div class="module-meta">
+      <div class="meta-item"><div class="meta-dot" style="background:var(--teal)"></div>Intermediário</div>
+      <div class="meta-item"><div class="meta-dot" style="background:var(--accent)"></div>~40 min</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'theory')">📖 Teoria</div>
+    <div class="tab" onclick="switchTab(this,'commands')">⚙️ Comandos</div>
+    <div class="tab" onclick="switchTab(this,'lab')">🧪 Laboratório</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-theory">
+      <div class="callout callout-success">
+        <div class="callout-icon">✅</div>
+        <div class="callout-text"><strong>"Memória usada = ruim" é o erro mais comum.</strong> Linux usa RAM livre para cache de disco — isso acelera o sistema. Ver "used: 14GB" de 16GB é NORMAL e bom.</div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">🔍 Interpretando free -h</div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmd">free</span> <span class="flag">-h</span>
+
+<span class="out">              total    used    free   shared  buff/cache  available
+Mem:          15.6G   10.2G   1.1G    450M       4.3G       4.8G
+Swap:          4.0G   280M    3.7G</span>
+
+<span class="cmt"># "available" é o que importa — não "free"!
+# available = free + buff/cache (recuperável)
+# 4.8G disponível significa sistema saudável</span></pre>
+      </div>
+
+      <div class="grid-2" style="margin-top:20px;">
+        <div class="card card-green">
+          <div class="card-title" style="color:var(--green)">available — O que importa</div>
+          <div class="card-body">Memória real disponível para novos processos. Inclui cache recuperável. <strong style="color:var(--text)">Use este número!</strong></div>
+        </div>
+        <div class="card card-red">
+          <div class="card-title" style="color:var(--red)">swap em uso excessivo</div>
+          <div class="card-body">Swap alto significa memória RAM esgotada. O sistema está paginando para disco. <strong style="color:var(--red)">Performance destruída.</strong></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">💀 OOM Killer — o assassino silencioso</div>
+      <div class="card card-red">
+        <div class="card-title" style="color:var(--red)">OOM = Out Of Memory Killer</div>
+        <div class="card-body">Quando a memória acaba, o kernel mata processos para sobreviver. Processo misteriosamente "desaparecendo"? Verifique!</div>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Verificar se OOM Killer agiu</span>
+<span class="cmd">dmesg</span> <span class="flag">| grep -i oom</span>
+<span class="out">Out of memory: Kill process 14523 (java) score 847 or sacrifice child</span>
+<span class="out">Killed process 14523 (java) total-vm:4194304kB, anon-rss:3221225kB</span>
+
+<span class="cmt"># Nos logs do sistema</span>
+<span class="cmd">journalctl</span> <span class="flag">-k | grep -i "killed process"</span>
+
+<span class="cmt"># Score de cada processo (quanto maior, mais propenso a ser morto)</span>
+<span class="cmd">cat</span> /proc/14523/oom_score</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-commands">
+      <div class="section-title">⚙️ Comandos de Memória</div>
+      <div class="cmd-grid">
+        <div class="cmd-card"><div class="cmd-name">free -h</div><div class="cmd-desc">Visão geral de memória RAM e swap</div><div class="cmd-example">free -h -s 2</div></div>
+        <div class="cmd-card"><div class="cmd-name">vmstat 1</div><div class="cmd-desc">Estatísticas de memória em tempo real. Observe swpd e wa</div><div class="cmd-example">vmstat 1 10</div></div>
+        <div class="cmd-card"><div class="cmd-name">/proc/meminfo</div><div class="cmd-desc">Detalhes completos da memória do kernel</div><div class="cmd-example">cat /proc/meminfo</div></div>
+        <div class="cmd-card"><div class="cmd-name">smem</div><div class="cmd-desc">Uso real de memória por processo (PSS)</div><div class="cmd-example">smem -r | head</div></div>
+        <div class="cmd-card"><div class="cmd-name">dmesg</div><div class="cmd-desc">Mensagens do kernel — incluindo OOM events</div><div class="cmd-example">dmesg | grep -i oom</div></div>
+        <div class="cmd-card"><div class="cmd-name">pmap</div><div class="cmd-desc">Mapa de memória de um processo específico</div><div class="cmd-example">pmap -x PID</div></div>
+      </div>
+
+      <div class="callout callout-warn" style="margin-top:20px;">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-text"><strong>Swap ≠ RAM.</strong> Swap é uma válvula de emergência no disco. Se você está usando swap constantemente, o sistema precisa de mais RAM. Swap alto = performance destruída.</div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-lab">
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🧪 Lab 03 — Investigar uso de memória<span class="lab-badge badge-lab" style="margin-left:8px;">LAB</span></div>
+          <span class="lab-badge badge-easy">FÁCIL</span>
+        </div>
+        <div class="lab-body">
+          <div class="lab-steps">
+            <div class="lab-step"><div class="step-num">1</div><div class="step-text">Execute <code>free -h</code> e identifique: total, used, free, available, swap</div></div>
+            <div class="lab-step"><div class="step-num">2</div><div class="step-text">Execute <code>vmstat 1 5</code> e observe as colunas <code>swpd</code>, <code>buff</code>, <code>cache</code></div></div>
+            <div class="lab-step"><div class="step-num">3</div><div class="step-text">Verifique se houve eventos OOM: <code>dmesg | grep -i oom | tail -5</code></div></div>
+            <div class="lab-step"><div class="step-num">4</div><div class="step-text">Liste os 5 processos que mais consomem memória: <code>ps aux --sort=-%mem | head -6</code></div></div>
+            <div class="lab-step"><div class="step-num">5</div><div class="step-text">Examine o mapa de memória de um processo: <code>pmap -x $(pgrep nginx | head -1)</code></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — Memória</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei interpretar free -h corretamente (available, não free)</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo que buff/cache é memória utilizável, não desperdiçada</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei verificar eventos do OOM Killer com dmesg</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo o impacto do swap na performance</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: DISK ══════════════════════════ -->
+<div id="page-disk" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 04 · FASE 1 — LINUX</div>
+    <div class="module-title">Disco & I/O</div>
+    <div class="module-desc">Disco lento destrói sistemas silenciosamente. Aprenda a identificar gargalos de I/O antes que eles destruam a produção.</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'theory')">📖 Teoria</div>
+    <div class="tab" onclick="switchTab(this,'commands')">⚙️ Comandos</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-theory">
+      <div class="callout callout-danger">
+        <div class="callout-icon">🚨</div>
+        <div class="callout-text"><strong>Disco lento é o problema invisível.</strong> CPU pode estar baixa, memória pode estar OK, mas se o disco está saturado, o sistema inteiro degrada silenciosamente.</div>
+      </div>
+      <div class="section-title" style="margin-top:28px;">📊 iostat — a ferramenta chave</div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmd">iostat</span> <span class="flag">-xz 1</span>
+
+<span class="out">Device:  rrqm/s wrqm/s  r/s  w/s  rkB/s  wkB/s  avgrq-sz avgqu-sz  await  r_await w_await svctm  %util
+sda        0.0    0.0  0.0  98.0    0.0  392.0      8.0     2.4    24.3     0.0    24.3   8.2   80.3</span>
+
+<span class="cmt"># INTERPRETAÇÃO:
+# %util = 80.3% → disco muito ocupado (acima de 80% = problema)
+# await = 24.3ms → latência de 24ms (alto! SSD deve ser < 1ms)
+# avgqu-sz = 2.4 → fila de 2.4 operações esperando</span></pre>
+      </div>
+
+      <div class="grid-2" style="margin-top:20px;">
+        <div class="card card-red">
+          <div class="card-title" style="color:var(--red)">%util perto de 100%</div>
+          <div class="card-body">Disco saturado. Cada nova operação de I/O vai esperar na fila. <strong style="color:var(--red)">Sistema em colapso.</strong></div>
+        </div>
+        <div class="card card-amber">
+          <div class="card-title" style="color:var(--amber)">await alto</div>
+          <div class="card-body">Latência de acesso ao disco. SSD normal: &lt;1ms. HDD normal: 5-10ms. Acima disso: problema de hardware ou saturação.</div>
+        </div>
+      </div>
+
+      <div class="code-block" style="margin-top:20px;">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Verificar espaço em disco</span>
+<span class="cmd">df</span> <span class="flag">-h</span>
+<span class="out">Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   48G  2.0G  97% /         ← CRÍTICO!</span>
+
+<span class="cmt"># Encontrar o que está ocupando espaço</span>
+<span class="cmd">du</span> <span class="flag">-sh</span> /var/log/* | <span class="cmd">sort</span> <span class="flag">-rh</span> | <span class="cmd">head</span> <span class="flag">-10</span>
+
+<span class="cmt"># Encontrar arquivos grandes</span>
+<span class="cmd">find</span> / <span class="flag">-size +1G -type f</span> 2>/dev/null</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-commands">
+      <div class="section-title">⚙️ Comandos de Disco</div>
+      <div class="cmd-grid">
+        <div class="cmd-card"><div class="cmd-name">df -h</div><div class="cmd-desc">Espaço livre/usado em todos os filesystems</div><div class="cmd-example">df -h /var</div></div>
+        <div class="cmd-card"><div class="cmd-name">iostat -xz 1</div><div class="cmd-desc">Estatísticas de I/O por dispositivo em tempo real</div><div class="cmd-example">iostat -xz 1 5</div></div>
+        <div class="cmd-card"><div class="cmd-name">du -sh</div><div class="cmd-desc">Tamanho de diretórios/arquivos</div><div class="cmd-example">du -sh /var/log/*</div></div>
+        <div class="cmd-card"><div class="cmd-name">lsof</div><div class="cmd-desc">Quais processos estão usando quais arquivos</div><div class="cmd-example">lsof /var/log/app.log</div></div>
+        <div class="cmd-card"><div class="cmd-name">iotop</div><div class="cmd-desc">Processos com mais I/O (como top para disco)</div><div class="cmd-example">iotop -ao</div></div>
+        <div class="cmd-card"><div class="cmd-name">hdparm -t</div><div class="cmd-desc">Teste de velocidade de leitura do disco</div><div class="cmd-example">hdparm -t /dev/sda</div></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — Disco & I/O</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei interpretar %util e await no iostat</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo encontrar o que está lotando o disco com du/find</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo a diferença entre await de SSD vs HDD</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: NETWORK ══════════════════════════ -->
+<div id="page-network" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 05 · FASE 2 — REDE</div>
+    <div class="module-title">TCP/IP & DNS</div>
+    <div class="module-desc">Grande parte dos problemas de produção não são bugs — são problemas de rede. DNS resolve 40% dos incidentes "misteriosos".</div>
+    <div class="module-meta">
+      <div class="meta-item"><div class="meta-dot" style="background:var(--green)"></div>Fundamental</div>
+      <div class="meta-item"><div class="meta-dot" style="background:var(--accent)"></div>~60 min</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'theory')">📖 Teoria</div>
+    <div class="tab" onclick="switchTab(this,'tcp')">🔌 TCP na Prática</div>
+    <div class="tab" onclick="switchTab(this,'dns')">🌐 DNS</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-theory">
+      <div class="section-title">🌐 O modelo mental da rede</div>
+      <div class="card card-accent">
+        <div class="card-body">Toda comunicação tem: <strong style="color:var(--text)">origem → protocolo → porta → destino → latência → handshake → timeout</strong>. Quando algo falha, um desses elementos é o culpado.</div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">📡 Estados TCP que você deve conhecer</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Estado</th><th>Significado</th><th>Normal?</th><th>Quando preocupar</th></tr>
+          <tr><td class="td-cmd">ESTABLISHED</td><td>Conexão ativa</td><td class="td-good">NORMAL</td><td>Muitas demais pode indicar leak</td></tr>
+          <tr><td class="td-cmd">TIME_WAIT</td><td>Aguardando encerramento seguro</td><td class="td-good">NORMAL</td><td>Centenas de milhares = problema</td></tr>
+          <tr><td class="td-cmd">CLOSE_WAIT</td><td>Remoto fechou, local não</td><td class="td-bad">ATENÇÃO</td><td>Aumentando = bug de código (não fecha conexão)</td></tr>
+          <tr><td class="td-cmd">SYN_SENT</td><td>Esperando resposta do handshake</td><td class="td-good">NORMAL</td><td>Acumulando = timeout/firewall bloqueando</td></tr>
+          <tr><td class="td-cmd">LISTEN</td><td>Porta escutando conexões</td><td class="td-good">NORMAL</td><td>Porta que deveria escutar não está</td></tr>
+        </table>
+      </div>
+
+      <div class="code-block" style="margin-top:20px;">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Ver todas as conexões com processo</span>
+<span class="cmd">ss</span> <span class="flag">-tunap</span>
+
+<span class="cmt"># Contar conexões por estado</span>
+<span class="cmd">ss</span> <span class="flag">-tan</span> | <span class="cmd">awk</span> <span class="str">'NR>1 {print $1}'</span> | <span class="cmd">sort</span> | <span class="cmd">uniq -c</span> | <span class="cmd">sort -rn</span>
+
+<span class="cmt"># Quem está escutando em qual porta</span>
+<span class="cmd">ss</span> <span class="flag">-tlnp</span>
+<span class="out">State   Recv-Q  Send-Q  Local Address:Port    Peer Address:Port
+LISTEN  0       128     0.0.0.0:80             0.0.0.0:*    users:(("nginx",pid=1234,fd=6))
+LISTEN  0       128     0.0.0.0:443            0.0.0.0:*    users:(("nginx",pid=1234,fd=7))</span></pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-tcp">
+      <div class="section-title">🔌 TCP — Handshake & Timeout</div>
+      <div class="card card-teal">
+        <div class="card-title">O handshake TCP (3-way)</div>
+        <div class="card-body" style="margin-top:10px;">
+          <div class="timeline">
+            <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Cliente → Servidor</div><div class="tl-event">SYN — "Quero conectar"</div></div>
+            <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Servidor → Cliente</div><div class="tl-event">SYN-ACK — "OK, pode conectar"</div></div>
+            <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">Cliente → Servidor</div><div class="tl-event">ACK — "Confirmado, conectado!"</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warn" style="margin-top:20px;">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-text"><strong>Timeout é um sintoma, não uma causa.</strong> Quando vê "connection timed out", investigue: firewall? Rota de rede? Serviço caído? DNS incorreto? Congestionamento?</div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Capturar tráfego TCP para debug</span>
+<span class="cmd">tcpdump</span> <span class="flag">-i eth0 -n port 443 -w capture.pcap</span>
+
+<span class="cmt"># Ver handshake em tempo real</span>
+<span class="cmd">tcpdump</span> <span class="flag">-i eth0 "tcp[tcpflags] & (tcp-syn) != 0"</span>
+
+<span class="cmt"># Ver retransmissões (problema de rede)</span>
+<span class="cmd">tcpdump</span> <span class="flag">-i eth0 "tcp[tcpflags] & (tcp-rst) != 0"</span>
+
+<span class="cmt"># Testar conectividade TCP básica</span>
+<span class="cmd">nc</span> <span class="flag">-zv</span> api.exemplo.com 443
+<span class="out">Connection to api.exemplo.com 443 port [tcp/https] succeeded!</span></pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-dns">
+      <div class="section-title">🌐 DNS — O causador oculto</div>
+      <div class="callout callout-danger">
+        <div class="callout-icon">🚨</div>
+        <div class="callout-text"><strong>Muitos sistemas "caindo" são apenas DNS.</strong> Resolução lenta, cache errado, DNS intermitente, propagação incompleta — todos causam falhas que parecem bug de aplicação.</div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Resolver DNS básico</span>
+<span class="cmd">dig</span> google.com
+<span class="cmd">dig</span> <span class="flag">+short</span> api.exemplo.com
+
+<span class="cmt"># Medir tempo de resolução DNS</span>
+<span class="cmd">dig</span> google.com | grep "Query time"
+<span class="out">;; Query time: 2 msec   ← bom</span>
+<span class="out">;; Query time: 3000 msec ← problema de DNS!</span>
+
+<span class="cmt"># Forçar DNS resolver específico</span>
+<span class="cmd">dig</span> <span class="flag">@8.8.8.8</span> api.exemplo.com
+
+<span class="cmt"># Verificar configuração DNS local</span>
+<span class="cmd">cat</span> /etc/resolv.conf
+
+<span class="cmt"># Reverso — IP para hostname</span>
+<span class="cmd">dig</span> <span class="flag">-x</span> 8.8.8.8
+
+<span class="cmt"># Simular propagação — verificar múltiplos resolvers</span>
+<span class="cmd">dig</span> <span class="flag">@1.1.1.1</span> api.exemplo.com  <span class="cmt"># Cloudflare</span>
+<span class="cmd">dig</span> <span class="flag">@8.8.8.8</span> api.exemplo.com  <span class="cmt"># Google</span></pre>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">🐛 Problemas clássicos de DNS</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Problema</th><th>Sintoma</th><th>Diagnóstico</th></tr>
+          <tr><td>Resolução lenta</td><td>Tudo lento, mesmo com servidor funcionando</td><td><code class="td-cmd">dig +stats domain.com</code> — observe Query time</td></tr>
+          <tr><td>Cache errado</td><td>DNS retorna IP antigo após troca</td><td><code class="td-cmd">dig @8.8.8.8</code> vs <code class="td-cmd">dig @1.1.1.1</code></td></tr>
+          <tr><td>DNS intermitente</td><td>Às vezes funciona, às vezes não</td><td><code class="td-cmd">for i in $(seq 10); do dig +short domain.com; done</code></td></tr>
+          <tr><td>NXDOMAIN</td><td>Domínio não existe / digitado errado</td><td>Verificar configuração e spelling</td></tr>
+          <tr><td>TTL alto após mudança</td><td>Mudança não propagou</td><td><code class="td-cmd">dig domain.com | grep TTL</code></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — Rede & DNS</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei identificar estados TCP (ESTABLISHED, TIME_WAIT, CLOSE_WAIT)</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo verificar conectividade com ss, nc e curl</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei diagnosticar problemas de DNS com dig</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo o handshake TCP e o que pode falhar nele</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei capturar tráfego com tcpdump para análise profunda</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: TOOLS NET ══════════════════════════ -->
+<div id="page-tools-net" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 06 · FASE 2 — REDE</div>
+    <div class="module-title">Ferramentas de Rede</div>
+    <div class="module-desc">curl, dig, ss, tcpdump — o arsenal completo para investigar qualquer problema de rede em produção.</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'curl')">🔧 curl</div>
+    <div class="tab" onclick="switchTab(this,'tcpdump')">🦈 tcpdump</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-curl">
+      <div class="section-title">🔧 curl — ferramenta obrigatória</div>
+      <div class="callout callout-info">
+        <div class="callout-icon">💡</div>
+        <div class="callout-text"><strong>Aprenda MUITO curl.</strong> É sua navalha suíça para testar APIs, certificados, latência, headers e muito mais.</div>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Verbose — ver tudo (headers, TLS, timing)</span>
+<span class="cmd">curl</span> <span class="flag">-v</span> https://api.site.com
+
+<span class="cmt"># Medir timing detalhado</span>
+<span class="cmd">curl</span> <span class="flag">-o /dev/null -s -w</span> <span class="str">"\nDNS: %{time_namelookup}s\nConnect: %{time_connect}s\nTLS: %{time_appconnect}s\nTTFB: %{time_starttransfer}s\nTotal: %{time_total}s\n"</span> https://api.site.com
+
+<span class="cmt"># Seguir redirects</span>
+<span class="cmd">curl</span> <span class="flag">-L</span> https://site.com
+
+<span class="cmt"># POST com JSON</span>
+<span class="cmd">curl</span> <span class="flag">-X POST -H "Content-Type: application/json" -d '{"key":"value"}'</span> https://api.site.com
+
+<span class="cmt"># Ignorar SSL (só para debug!)</span>
+<span class="cmd">curl</span> <span class="flag">-k</span> https://api-interno.com
+
+<span class="cmt"># Testar com header de host específico</span>
+<span class="cmd">curl</span> <span class="flag">-H "Host: api.site.com"</span> http://10.0.0.5/health
+
+<span class="cmt"># Verificar certificado</span>
+<span class="cmd">curl</span> <span class="flag">-v -o /dev/null</span> https://site.com 2>&1 | grep -E "expire|SSL|TLS"</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-tcpdump">
+      <div class="section-title">🦈 tcpdump — o superpoder</div>
+      <div class="callout callout-success">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-text"><strong>Pouca gente domina tcpdump. Quem domina resolve problemas absurdos.</strong> É a ferramenta definitiva para ver exatamente o que está passando na rede.</div>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Capturar tráfego na porta 443</span>
+<span class="cmd">tcpdump</span> <span class="flag">-i eth0 port 443</span>
+
+<span class="cmt"># Salvar captura para análise no Wireshark</span>
+<span class="cmd">tcpdump</span> <span class="flag">-i eth0 -w capture.pcap port 443</span>
+
+<span class="cmt"># Ver tráfego de/para IP específico</span>
+<span class="cmd">tcpdump</span> <span class="flag">-i eth0 host 10.0.0.5</span>
+
+<span class="cmt"># Ver resets TCP (conexões forçadamente encerradas)</span>
+<span class="cmd">tcpdump</span> <span class="flag">-i eth0 "tcp[tcpflags] & tcp-rst != 0"</span>
+
+<span class="cmt"># Capturar DNS</span>
+<span class="cmd">tcpdump</span> <span class="flag">-i eth0 port 53 -n</span>
+
+<span class="cmt"># Ver conteúdo em ASCII</span>
+<span class="cmd">tcpdump</span> <span class="flag">-i eth0 -A port 80</span></pre>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">📋 O que procurar no tcpdump</div>
+      <div class="grid-2">
+        <div class="card card-red"><div class="card-title" style="color:var(--red)">RST repetidos</div><div class="card-body">Conexões sendo brutalmente encerradas. Indica firewall, serviço caído ou rejeição ativa.</div></div>
+        <div class="card card-amber"><div class="card-title" style="color:var(--amber)">Retransmissões</div><div class="card-body">Pacotes perdidos sendo reenvidos. Indica problema de rede ou congestionamento.</div></div>
+        <div class="card card-accent"><div class="card-title" style="color:var(--accent2)">SYN sem resposta</div><div class="card-body">Pacote de handshake vai mas não volta. Firewall bloqueando ou serviço não está rodando.</div></div>
+        <div class="card card-green"><div class="card-title" style="color:var(--green)">Handshake limpo</div><div class="card-body">SYN → SYN-ACK → ACK em sequência rápida. Conexão TCP saudável.</div></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — Ferramentas de Rede</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei usar curl -v e interpretar o output completo</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo medir DNS/connect/TLS/TTFB com curl -w</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei capturar tráfego com tcpdump e filtrar por porta/IP</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo identificar RST, retransmissões e SYN sem resposta</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: LOGS ══════════════════════════ -->
+<div id="page-logs" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 07 · FASE 3 — OBSERVABILIDADE</div>
+    <div class="module-title">Logs</div>
+    <div class="module-desc">Logs são evidência. Mas muita gente lê errado — linha por linha, sem padrão. Aprenda a extrair inteligência de logs.</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'theory')">📖 Como Ler</div>
+    <div class="tab" onclick="switchTab(this,'grep')">🔍 grep & filtros</div>
+    <div class="tab" onclick="switchTab(this,'lab')">🧪 Laboratório</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-theory">
+      <div class="section-title">📖 Como ler logs corretamente</div>
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-text"><strong>NÃO leia linha por linha primeiro.</strong> Você vai se perder. Primeiro identifique padrões, depois filtre, depois correlacione.</div>
+      </div>
+      <div class="grid-3" style="margin-top:20px;">
+        <div class="card card-sm" style="border-left:3px solid var(--accent)"><div class="card-title" style="color:var(--accent2)">1. Identificar padrão</div><div class="card-body">Mesmo erro? Com que frequência? Em que horário? Qual componente?</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--teal)"><div class="card-title" style="color:var(--teal)">2. Filtrar</div><div class="card-body">grep para isolar o que importa. Eliminar ruído.</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--green)"><div class="card-title" style="color:var(--green)">3. Correlacionar</div><div class="card-body">Deploy? Horário de pico? Aumento de tráfego? Mudança recente?</div></div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">📋 journalctl — logs do systemd</div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Logs de um serviço específico</span>
+<span class="cmd">journalctl</span> <span class="flag">-u nginx</span>
+
+<span class="cmt"># Últimas 100 linhas em tempo real</span>
+<span class="cmd">journalctl</span> <span class="flag">-u nginx -n 100 -f</span>
+
+<span class="cmt"># Logs com erros (priority = error)</span>
+<span class="cmd">journalctl</span> <span class="flag">-p err</span>
+
+<span class="cmt"># Logs desde um horário</span>
+<span class="cmd">journalctl</span> <span class="flag">--since "2024-01-15 10:00:00" --until "2024-01-15 11:00:00"</span>
+
+<span class="cmt"># Logs do kernel</span>
+<span class="cmd">journalctl</span> <span class="flag">-k</span>
+
+<span class="cmt"># Output JSON para processar</span>
+<span class="cmd">journalctl</span> <span class="flag">-u nginx -o json</span></pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-grep">
+      <div class="section-title">🔍 grep — uma arma de investigação</div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Básico — buscar erro</span>
+<span class="cmd">grep</span> <span class="flag">-i</span> <span class="str">"error"</span> app.log
+
+<span class="cmt"># Múltiplos padrões com regex</span>
+<span class="cmd">grep</span> <span class="flag">-E</span> <span class="str">"500|timeout|exception"</span> app.log
+
+<span class="cmt"># Contexto — 5 linhas antes e depois do erro</span>
+<span class="cmd">grep</span> <span class="flag">-C 5</span> <span class="str">"ERROR"</span> app.log
+
+<span class="cmt"># Contar ocorrências</span>
+<span class="cmd">grep</span> <span class="flag">-c</span> <span class="str">"ERROR"</span> app.log
+
+<span class="cmt"># Com timestamp — frequência de erros</span>
+<span class="cmd">grep</span> <span class="str">"ERROR"</span> app.log | <span class="cmd">awk</span> <span class="str">'{print $1}'</span> | <span class="cmd">sort</span> | <span class="cmd">uniq -c</span> | <span class="cmd">sort -rn</span>
+
+<span class="cmt"># Excluir padrões (inverso)</span>
+<span class="cmd">grep</span> <span class="flag">-v</span> <span class="str">"health-check"</span> access.log | <span class="cmd">grep</span> <span class="str">"500"</span>
+
+<span class="cmt"># Em múltiplos arquivos</span>
+<span class="cmd">grep</span> <span class="flag">-r</span> <span class="str">"OutOfMemoryError"</span> /var/log/
+
+<span class="cmt"># Contar erros 500 por minuto (análise de padrão)</span>
+<span class="cmd">grep</span> <span class="str">" 500 "</span> access.log | <span class="cmd">cut</span> <span class="flag">-d' ' -f4</span> | <span class="cmd">cut</span> <span class="flag">-c1-17</span> | <span class="cmd">sort</span> | <span class="cmd">uniq -c</span></pre>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">⚙️ tail & watch — logs em tempo real</div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Acompanhar log em tempo real</span>
+<span class="cmd">tail</span> <span class="flag">-f</span> /var/log/app.log
+
+<span class="cmt"># Acompanhar E filtrar em tempo real</span>
+<span class="cmd">tail</span> <span class="flag">-f</span> /var/log/app.log | <span class="cmd">grep</span> <span class="flag">--line-buffered</span> <span class="str">"ERROR"</span>
+
+<span class="cmt"># Múltiplos arquivos ao mesmo tempo</span>
+<span class="cmd">tail</span> <span class="flag">-f</span> /var/log/app.log /var/log/nginx/error.log</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-lab">
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🧪 Lab 07 — Análise de log simulado<span class="lab-badge badge-lab" style="margin-left:8px;">LAB</span></div>
+          <span class="lab-badge badge-ex">EXERCÍCIO</span>
+        </div>
+        <div class="lab-body">
+          <div class="card-body" style="margin-bottom:14px;">Analise o log abaixo. <strong style="color:var(--text)">Encontre: quando os erros começaram, qual endpoint está falhando e qual a frequência.</strong></div>
+          <div class="code-block" style="margin:0;">
+            <div class="code-header"><span class="code-lang">log simulado</span></div>
+            <pre style="font-size:11px;"><span class="out">2024-01-15 10:00:01 INFO  GET /api/users 200 12ms
+2024-01-15 10:00:02 INFO  GET /api/products 200 8ms
+2024-01-15 10:00:03 INFO  GET /api/users 200 15ms
+2024-01-15 10:03:21 WARN  GET /api/payment 200 2340ms  ← lentidão
+2024-01-15 10:03:45 ERROR GET /api/payment 500 timeout
+2024-01-15 10:03:46 ERROR GET /api/payment 500 timeout
+2024-01-15 10:03:48 ERROR GET /api/payment 500 connection refused
+2024-01-15 10:03:50 INFO  GET /api/users 200 12ms
+2024-01-15 10:03:51 ERROR GET /api/payment 500 timeout
+2024-01-15 10:04:02 ERROR GET /api/payment 500 timeout
+2024-01-15 10:04:15 INFO  GET /api/users 200 14ms</span></pre>
+          </div>
+          <div style="margin-top:14px;font-size:13px;color:var(--text2);">
+            <strong style="color:var(--text)">Perguntas:</strong><br>
+            1. Quando os erros começaram?<br>
+            2. Qual endpoint está falhando? Os outros endpoints estão afetados?<br>
+            3. Qual foi o primeiro sintoma antes dos erros?<br>
+            4. Qual comando grep usaria para isolar apenas os erros 500 do /api/payment?
+          </div>
+          <div class="card" style="margin-top:14px;background:var(--bg2);border-color:var(--green);">
+            <div class="card-title" style="color:var(--green)">✅ Resposta</div>
+            <div class="card-body">
+              1. <strong>10:03:45</strong> — mas o primeiro sintoma foi lentidão em 10:03:21 (2340ms)<br>
+              2. <strong>/api/payment</strong> — /api/users continua funcionando normalmente<br>
+              3. <strong>Latência alta (warn)</strong> antes do erro total — degradação gradual<br>
+              4. <code style="font-family:var(--mono);color:var(--teal)">grep 'GET /api/payment 500' app.log</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — Logs</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei usar grep com regex para filtrar logs eficientemente</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo analisar logs buscando padrão antes do erro</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei usar journalctl para logs de serviços systemd</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo acompanhar logs em tempo real com tail -f + grep</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: METRICS ══════════════════════════ -->
+<div id="page-metrics" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 08 · FASE 3 — OBSERVABILIDADE</div>
+    <div class="module-title">Métricas & Alertas</div>
+    <div class="module-desc">Golden Signals, RED Method, USE Method. Aprenda o que medir e como alertar sem criar fadiga operacional.</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'theory')">📖 Métodos</div>
+    <div class="tab" onclick="switchTab(this,'alerts')">🔔 Alertas</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-theory">
+      <div class="section-title">📊 Os 3 métodos essenciais</div>
+      <div class="grid-3" style="margin-bottom:24px;">
+        <div class="card" style="border-top:3px solid var(--accent);">
+          <div class="card-title" style="color:var(--accent2)">⭐ Golden Signals</div>
+          <div class="card-body" style="margin-top:8px;">
+            <div style="margin-bottom:6px;"><strong style="color:var(--text)">Latência</strong> — tempo de resposta</div>
+            <div style="margin-bottom:6px;"><strong style="color:var(--text)">Tráfego</strong> — req/segundo</div>
+            <div style="margin-bottom:6px;"><strong style="color:var(--text)">Erros</strong> — taxa de falha</div>
+            <div><strong style="color:var(--text)">Saturação</strong> — limite de recurso</div>
+          </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--teal);">
+          <div class="card-title" style="color:var(--teal)">🔴 RED Method</div>
+          <div class="card-body" style="margin-top:8px;">
+            <div style="margin-bottom:6px;"><strong style="color:var(--text)">Rate</strong> — quantas requests</div>
+            <div style="margin-bottom:6px;"><strong style="color:var(--text)">Errors</strong> — quantos erros</div>
+            <div><strong style="color:var(--text)">Duration</strong> — tempo de resposta</div>
+            <div style="margin-top:8px;font-size:12px;color:var(--text3);">Ideal para microsserviços</div>
+          </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--green);">
+          <div class="card-title" style="color:var(--green)">🔧 USE Method</div>
+          <div class="card-body" style="margin-top:8px;">
+            <div style="margin-bottom:6px;"><strong style="color:var(--text)">Utilization</strong> — % usando</div>
+            <div style="margin-bottom:6px;"><strong style="color:var(--text)">Saturation</strong> — existe fila?</div>
+            <div><strong style="color:var(--text)">Errors</strong> — existe falha?</div>
+            <div style="margin-top:8px;font-size:12px;color:var(--text3);">Ideal para infraestrutura</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">📈 Diferença entre Logs, Métricas e Traces</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Pilar</th><th>Mostra</th><th>Ideal para</th><th>Exemplo</th></tr>
+          <tr><td><strong style="color:var(--teal)">Logs</strong></td><td>Evento detalhado individual</td><td>Debug de erros específicos</td><td>Stack trace de uma exception</td></tr>
+          <tr><td><strong style="color:var(--accent2)">Métricas</strong></td><td>Comportamento agregado no tempo</td><td>Tendências, alertas, dashboards</td><td>Latência p99 dos últimos 5 min</td></tr>
+          <tr><td><strong style="color:var(--green)">Traces</strong></td><td>Jornada de uma requisição</td><td>Performance de sistemas distribuídos</td><td>Request passou por API → DB → Cache</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-alerts">
+      <div class="section-title">🔔 Alertas que funcionam</div>
+      <div class="callout callout-danger">
+        <div class="callout-icon">🚨</div>
+        <div class="callout-text"><strong>O maior erro: alertar tudo.</strong> Isso cria fadiga de alerta — a equipe para de tomar alertas a sério. Quando o alerta real chega, é ignorado.</div>
+      </div>
+
+      <div class="grid-2" style="margin-top:20px;">
+        <div class="card" style="border-left:3px solid var(--red)">
+          <div class="card-title" style="color:var(--red)">❌ Alerta ruim</div>
+          <div class="card-body">
+            "CPU acima de 80%"<br>
+            "Mais de 10 erros por minuto"<br>
+            "Disco com menos de 20% livre"<br>
+            <div style="margin-top:8px;font-size:12px;">Não é acionável. Pode ser normal. Sem contexto.</div>
+          </div>
+        </div>
+        <div class="card" style="border-left:3px solid var(--green)">
+          <div class="card-title" style="color:var(--green)">✅ Alerta bom</div>
+          <div class="card-body">
+            "Taxa de erro /api/checkout > 1% por 5min"<br>
+            "Latência p99 > 2s por 10min"<br>
+            "Disco enche em &lt; 4h no ritmo atual"<br>
+            <div style="margin-top:8px;font-size:12px;">Acionável, específico, com contexto temporal.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-accent" style="margin-top:16px;">
+        <div class="card-title">Características de um bom alerta</div>
+        <div class="card-body" style="margin-top:8px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div>✅ <strong style="color:var(--text)">Acionável</strong> — tem uma ação clara quando dispara</div>
+            <div>✅ <strong style="color:var(--text)">Específico</strong> — indica qual serviço, qual métrica, qual threshold</div>
+            <div>✅ <strong style="color:var(--text)">Relevante</strong> — impacta o usuário ou está prestes a impactar</div>
+            <div>✅ <strong style="color:var(--text)">Contextualizado</strong> — tem janela temporal (não dispara em spike de 1s)</div>
+            <div>✅ <strong style="color:var(--text)">Urgente de verdade</strong> — precisa de atenção humana agora</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — Métricas & Alertas</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei aplicar Golden Signals para qualquer serviço</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo a diferença entre RED Method (serviços) e USE Method (infra)</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei distinguir logs, métricas e traces e quando usar cada um</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo avaliar se um alerta é acionável e específico</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: TROUBLESHOOT ══════════════════════════ -->
+<div id="page-troubleshoot" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 09 · FASE 4 — TROUBLESHOOTING</div>
+    <div class="module-title">Método Universal de Troubleshooting</div>
+    <div class="module-desc">O fluxo mental que separa quem investiga de quem chuta. Aprenda a metodologia que profissionais sênior usam.</div>
+    <div class="module-meta">
+      <div class="meta-item"><div class="meta-dot" style="background:var(--accent)"></div>Avançado</div>
+      <div class="meta-item"><div class="meta-dot" style="background:var(--accent)"></div>~60 min</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'method')">📋 Método</div>
+    <div class="tab" onclick="switchTab(this,'mental')">🧠 Mapa Mental</div>
+    <div class="tab" onclick="switchTab(this,'scenario')">🔥 Cenário Real</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-method">
+      <div class="callout callout-info">
+        <div class="callout-icon">💡</div>
+        <div class="callout-text"><strong>Regra número 1:</strong> NUNCA comece tentando resolver. Primeiro entenda, observe, colete evidências.</div>
+      </div>
+
+      <div class="section-title" style="margin-top:28px;">📋 Os 5 Passos Universais</div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
+        <div class="card" style="border-left:4px solid var(--teal);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--mono);font-size:13px;flex-shrink:0;">1</div>
+            <div class="card-title">Qual é o sintoma?</div>
+          </div>
+          <div class="card-body">Lentidão? Erro 500? Timeout? CPU alta? Pod reiniciando? <strong style="color:var(--text)">Sintoma ≠ causa raiz.</strong> Documente exatamente o que está acontecendo.</div>
+        </div>
+
+        <div class="card" style="border-left:4px solid var(--accent);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--mono);font-size:13px;flex-shrink:0;">2</div>
+            <div class="card-title">O problema é local, sistêmico, intermitente ou contínuo?</div>
+          </div>
+          <div class="card-body">Um usuário? Todos? Às vezes? Sempre? Isso muda completamente a investigação. Problema intermitente sugere condição de corrida, load balancer ou DNS.</div>
+        </div>
+
+        <div class="card" style="border-left:4px solid var(--amber);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--amber);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--mono);font-size:13px;flex-shrink:0;">3</div>
+            <div class="card-title">O que mudou?</div>
+          </div>
+          <div class="card-body">Esta pergunta resolve MUITOS incidentes. Deploy? DNS? Certificado? Firewall? Feature flag? Banco? Configuração? A maioria dos incidentes tem uma mudança como gatilho.</div>
+        </div>
+
+        <div class="card" style="border-left:4px solid var(--green);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--mono);font-size:13px;flex-shrink:0;">4</div>
+            <div class="card-title">É reproduzível?</div>
+          </div>
+          <div class="card-body">Se consegue reproduzir, consegue medir, testar e validar. Um bug reproduzível é meio caminho andado para a solução.</div>
+        </div>
+
+        <div class="card" style="border-left:4px solid var(--pink);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--mono);font-size:13px;flex-shrink:0;">5</div>
+            <div class="card-title">Isole as camadas</div>
+          </div>
+          <div class="card-body">App lenta → CPU? Memória? Disco? DNS? Banco? API externa? GC? Elimine hipóteses sistematicamente. Não resolva antes de identificar a camada.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-mental">
+      <div class="section-title">🧠 Checklist mental rápido por camada</div>
+      <div class="grid-2">
+        <div class="card card-sm">
+          <div class="card-title">🖥️ CPU</div>
+          <div class="card-body" style="margin-top:6px;font-family:var(--mono);font-size:12px;line-height:2;">
+            □ top → load average<br>
+            □ us alto → qual processo?<br>
+            □ wa alto → disco?<br>
+            □ sy alto → kernel pressure?
+          </div>
+        </div>
+        <div class="card card-sm">
+          <div class="card-title">💾 Memória</div>
+          <div class="card-body" style="margin-top:6px;font-family:var(--mono);font-size:12px;line-height:2;">
+            □ free -h → available<br>
+            □ swap em uso?<br>
+            □ dmesg → OOM?<br>
+            □ ps → maior consumidor
+          </div>
+        </div>
+        <div class="card card-sm">
+          <div class="card-title">💿 Disco</div>
+          <div class="card-body" style="margin-top:6px;font-family:var(--mono);font-size:12px;line-height:2;">
+            □ df -h → espaço livre<br>
+            □ iostat → %util, await<br>
+            □ iotop → quem faz I/O<br>
+            □ du → o que ocupa espaço
+          </div>
+        </div>
+        <div class="card card-sm">
+          <div class="card-title">🌐 Rede</div>
+          <div class="card-body" style="margin-top:6px;font-family:var(--mono);font-size:12px;line-height:2;">
+            □ dig → DNS resolvendo?<br>
+            □ ping → latência básica<br>
+            □ ss → conexões CLOSE_WAIT<br>
+            □ tcpdump → tráfego real
+          </div>
+        </div>
+        <div class="card card-sm">
+          <div class="card-title">📱 Aplicação</div>
+          <div class="card-body" style="margin-top:6px;font-family:var(--mono);font-size:12px;line-height:2;">
+            □ logs → exceções, padrões<br>
+            □ pool de conexões cheio?<br>
+            □ GC pausando?<br>
+            □ thread dump / goroutines
+          </div>
+        </div>
+        <div class="card card-sm">
+          <div class="card-title">🗄️ Banco</div>
+          <div class="card-body" style="margin-top:6px;font-family:var(--mono);font-size:12px;line-height:2;">
+            □ slow query log<br>
+            □ locks ativos<br>
+            □ conexões simultâneas<br>
+            □ CPU/IO do servidor DB
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-scenario">
+      <div class="section-title">🔥 Cenário Real: Cascata de Falhas</div>
+      <div class="callout callout-danger">
+        <div class="callout-icon">🚨</div>
+        <div class="callout-text"><strong>Incidente em produção às 14h32:</strong> Usuários reportando lentidão extrema no checkout. Erros 500 esporádicos. Ops team acordado.</div>
+      </div>
+
+      <div class="card" style="margin-top:20px;background:var(--bg2);">
+        <div class="card-title" style="color:var(--amber)">📅 Timeline do incidente</div>
+        <div class="timeline" style="margin-top:14px;">
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">14:25</div><div class="tl-event">Deploy de nova feature de pagamento</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">14:28</div><div class="tl-event">CPU começa a subir no serviço de pagamento</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">14:30</div><div class="tl-event">Latência do /api/payment sobe de 80ms para 2400ms</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">14:32</div><div class="tl-event">Alertas de erro 500 disparam. Equipe acionada.</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">14:33</div><div class="tl-event">Serviço de carrinho começa a falhar (dependia do payment)</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">14:34</div><div class="tl-event">Retry storm: carrinho retenta 3x → aumenta carga no payment</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">14:36</div><div class="tl-event">Banco começa a sentir carga. Slow queries aparecem.</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">14:42</div><div class="tl-event">Rollback do deploy iniciado</div></div>
+          <div class="tl-item"><div class="tl-dot done"></div><div class="tl-time">14:45</div><div class="tl-event">Sistema normaliza gradualmente</div></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;">🔍 Investigação passo a passo</div>
+      <div class="lab-box">
+        <div class="lab-header"><div class="lab-title">Como deveria ter sido investigado<span class="lab-badge badge-ex" style="margin-left:8px;">ANÁLISE</span></div></div>
+        <div class="lab-body">
+          <div class="lab-steps">
+            <div class="lab-step"><div class="step-num">1</div><div class="step-text"><strong>Sintoma:</strong> Lentidão no checkout. Erros 500. <em>Não reiniciar nada ainda.</em></div></div>
+            <div class="lab-step"><div class="step-num">2</div><div class="step-text"><strong>Pergunta-chave:</strong> "O que mudou?" → Deploy às 14:25. Correlação temporal clara.</div></div>
+            <div class="lab-step"><div class="step-num">3</div><div class="step-text"><strong>Isolar:</strong> <code>grep "ERROR" payment.log | tail -50</code> — confirmar que é só /api/payment</div></div>
+            <div class="lab-step"><div class="step-num">4</div><div class="step-text"><strong>CPU:</strong> <code>top</code> → us alto no processo payment-service → app consumindo CPU</div></div>
+            <div class="lab-step"><div class="step-num">5</div><div class="step-text"><strong>Decisão rápida:</strong> Rollback do deploy (mudança recente + CPU alta = causa clara)</div></div>
+            <div class="lab-step"><div class="step-num">6</div><div class="step-text"><strong>Validar:</strong> Monitorar métricas após rollback. CPU baixa → sistema normaliza → causa confirmada.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-success" style="margin-top:20px;">
+        <div class="callout-icon">✅</div>
+        <div class="callout-text"><strong>Lição:</strong> Deploy recente + problema imediato = rollback primeiro, investigação depois. A pergunta "o que mudou?" economizou horas de debug.</div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — Troubleshooting</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei seguir os 5 passos sem pular para a solução prematura</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo montar uma timeline de incidente com dados reais</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei trabalhar por hipóteses, validar e descartar</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo o padrão de cascata de falhas em sistemas distribuídos</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei usar o checklist mental por camada (CPU, memória, disco, rede, app, banco)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: INCIDENTS ══════════════════════════ -->
+<div id="page-incidents" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 10 · FASE 4 — TROUBLESHOOTING</div>
+    <div class="module-title">Incidentes & Postmortem</div>
+    <div class="module-desc">Postmortem não é sobre encontrar culpado — é sobre entender o sistema e evitar recorrência.</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'theory')">📖 Postmortem</div>
+    <div class="tab" onclick="switchTab(this,'template')">📝 Template</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-theory">
+      <div class="section-title">📋 O que é um postmortem real</div>
+      <div class="grid-2">
+        <div class="card card-red">
+          <div class="card-title" style="color:var(--red)">❌ O que NÃO é</div>
+          <div class="card-body">
+            — Encontrar culpado<br>
+            — Punir alguém<br>
+            — Lista de blame<br>
+            — Reunião de cobranças
+          </div>
+        </div>
+        <div class="card card-green">
+          <div class="card-title" style="color:var(--green)">✅ O que É</div>
+          <div class="card-body">
+            — Entender o sistema<br>
+            — Reduzir recorrência<br>
+            — Melhorar processo<br>
+            — Aprendizado coletivo
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:20px;">
+        <div class="callout-icon">💡</div>
+        <div class="callout-text"><strong>Cultura blameless:</strong> Se alguém com as mesmas informações disponíveis tomaria a mesma decisão, o problema é sistêmico — não da pessoa. O sistema permitiu o erro.</div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-template">
+      <div class="section-title">📝 Template de Postmortem</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="card card-sm" style="border-left:3px solid var(--teal)"><div class="card-title" style="color:var(--teal)">1. Resumo</div><div class="card-body">O que aconteceu em 2-3 frases. Impacto resumido. Para quem, quando, por quanto tempo.</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--accent)"><div class="card-title" style="color:var(--accent2)">2. Impacto</div><div class="card-body">Quantos usuários afetados? Qual % do tráfego? Qual serviço? Quanto tempo de indisponibilidade?</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--amber)"><div class="card-title" style="color:var(--amber)">3. Timeline</div><div class="card-body">Linha do tempo cronológica. Cada evento com horário. Inclui quando foi detectado, quando acionou, quando foi resolvido.</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--red)"><div class="card-title" style="color:var(--red)">4. Root Cause</div><div class="card-body">A causa raiz real — não o sintoma. Use os 5 Porquês para chegar ao fundo.</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--pink)"><div class="card-title" style="color:var(--pink)">5. Contributing Factors</div><div class="card-body">O que piorou o incidente? Falta de alerta? Processo de deploy? Falta de circuit breaker?</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--green)"><div class="card-title" style="color:var(--green)">6. Detection & Resolution</div><div class="card-body">Como detectamos? Quanto tempo levou? Como resolvemos? Poderia ter sido mais rápido?</div></div>
+        <div class="card card-sm" style="border-left:3px solid var(--teal)"><div class="card-title" style="color:var(--teal)">7. Action Items</div><div class="card-body">Ações concretas com owner e prazo. Cada action item deve ser: mensurável, com responsável, com data.</div></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — Incidentes & Postmortem</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei coletar evidências ANTES de intervir</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Consigo montar timeline com horários precisos</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo a diferença entre causa raiz e sintoma</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei escrever action items acionáveis com owner e prazo</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE: KUBERNETES ══════════════════════════ -->
+<div id="page-kubernetes" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">MÓDULO 11 · FASE 5 — KUBERNETES</div>
+    <div class="module-title">Kubernetes na Prática</div>
+    <div class="module-desc">Kubernetes não é magia. É Linux + Rede + Processos + Scheduling distribuídos. Os fundamentos continuam os mesmos.</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'theory')">📖 Conceitos</div>
+    <div class="tab" onclick="switchTab(this,'debug')">🔧 Debug</div>
+    <div class="tab" onclick="switchTab(this,'checklist')">✅ Checklist</div>
+  </div>
+  <div class="content">
+    <div class="tab-content active" id="tab-theory">
+      <div class="callout callout-info">
+        <div class="callout-icon">💡</div>
+        <div class="callout-text"><strong>Kubernetes é Linux distribuído.</strong> Pod = processo isolado. Service = rede. DNS = descoberta de serviço. Limits = cgroups. Probes = healthcheck.</div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;">🧩 Conceitos essenciais</div>
+      <div class="cmd-grid">
+        <div class="cmd-card"><div class="cmd-name">Pod</div><div class="cmd-desc">Menor unidade. Um ou mais containers compartilhando rede e storage. Como um processo no Linux.</div></div>
+        <div class="cmd-card"><div class="cmd-name">Service</div><div class="cmd-desc">Abstração de rede. IP estável que roteia para pods. ClusterIP, NodePort, LoadBalancer.</div></div>
+        <div class="cmd-card"><div class="cmd-name">Deployment</div><div class="cmd-desc">Gerencia ReplicaSets. Controla rollout, rollback e escala de pods.</div></div>
+        <div class="cmd-card"><div class="cmd-name">Ingress</div><div class="cmd-desc">Roteamento HTTP/HTTPS externo. Regras de path e host para serviços internos.</div></div>
+        <div class="cmd-card"><div class="cmd-name">Requests/Limits</div><div class="cmd-desc">CPU e memória garantidos (request) vs máximo (limit). Sem limits → pod pode derrubar o node.</div></div>
+        <div class="cmd-card"><div class="cmd-name">Probes</div><div class="cmd-desc">Liveness = "ainda vivo?". Readiness = "pronto para receber tráfego?". Startup = "inicializando".</div></div>
+      </div>
+
+      <div class="callout callout-danger" style="margin-top:20px;">
+        <div class="callout-icon">🚨</div>
+        <div class="callout-text"><strong>Erro clássico:</strong> "Pod restartando = problema resolvido". Não. Você apenas apagou evidência. O pod restartou porque o liveness probe falhou. Por quê falhou? <em>Essa</em> é a pergunta.</div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-debug">
+      <div class="section-title">🔧 Debug de Pods</div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copiar</button></div>
+        <pre><span class="cmt"># Status de todos os pods</span>
+<span class="cmd">kubectl</span> get pods <span class="flag">-A</span>
+
+<span class="cmt"># Detalhes de um pod específico</span>
+<span class="cmd">kubectl</span> describe pod meu-pod
+
+<span class="cmt"># Logs em tempo real</span>
+<span class="cmd">kubectl</span> logs <span class="flag">-f</span> meu-pod
+
+<span class="cmt"># Logs do container anterior (se reiniciou)</span>
+<span class="cmd">kubectl</span> logs meu-pod <span class="flag">--previous</span>
+
+<span class="cmt"># Shell dentro do pod</span>
+<span class="cmd">kubectl</span> exec <span class="flag">-it</span> meu-pod -- /bin/sh
+
+<span class="cmt"># Eventos do namespace (o que aconteceu)</span>
+<span class="cmd">kubectl</span> get events <span class="flag">--sort-by=.lastTimestamp</span>
+
+<span class="cmt"># Verificar uso de recursos</span>
+<span class="cmd">kubectl</span> top pods
+<span class="cmd">kubectl</span> top nodes</pre>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;">🔍 Diagnóstico por sintoma</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Sintoma no K8s</th><th>Possível Causa</th><th>Comando de investigação</th></tr>
+          <tr><td>CrashLoopBackOff</td><td>App falha ao iniciar, OOM, liveness probe</td><td><code class="td-cmd">kubectl logs --previous pod</code></td></tr>
+          <tr><td>Pending</td><td>Sem recursos no cluster, node seletor</td><td><code class="td-cmd">kubectl describe pod</code> → Events</td></tr>
+          <tr><td>OOMKilled</td><td>Memory limit ultrapassado</td><td><code class="td-cmd">kubectl describe pod | grep OOM</code></td></tr>
+          <tr><td>ImagePullBackOff</td><td>Imagem não existe, credenciais erradas</td><td><code class="td-cmd">kubectl describe pod</code> → Image pull error</td></tr>
+          <tr><td>Serviço inacessível</td><td>Selector errado, port errado</td><td><code class="td-cmd">kubectl get endpoints svc-name</code></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-checklist">
+      <div class="section-title">✅ Checklist — Kubernetes</div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo que K8s é Linux distribuído, não magia</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei diagnosticar CrashLoopBackOff, OOMKilled e Pending</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei acessar logs anteriores de um pod que reiniciou</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Entendo Requests vs Limits e impacto no scheduler</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="checkmark"><svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="1.8"/></svg></div><div class="check-label">Sei usar kubectl describe e events para investigar</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ QUIZ: LINUX ══════════════════════════ -->
+<div id="page-quiz-linux" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">AVALIAÇÃO · Q1</div>
+    <div class="module-title">Quiz — Linux & Memória</div>
+    <div class="module-desc">Teste seus conhecimentos sobre CPU, memória e disco no Linux.</div>
+  </div>
+  <div class="content">
+    <div id="quiz-linux-container"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ QUIZ: NETWORK ══════════════════════════ -->
+<div id="page-quiz-net" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">AVALIAÇÃO · Q2</div>
+    <div class="module-title">Quiz — Rede & DNS</div>
+    <div class="module-desc">Teste seus conhecimentos sobre TCP, DNS e ferramentas de rede.</div>
+  </div>
+  <div class="content">
+    <div id="quiz-net-container"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ QUIZ: OBS ══════════════════════════ -->
+<div id="page-quiz-obs" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">AVALIAÇÃO · Q3</div>
+    <div class="module-title">Quiz — Troubleshooting</div>
+    <div class="module-desc">Cenários reais de troubleshooting para testar seu raciocínio.</div>
+  </div>
+  <div class="content">
+    <div id="quiz-obs-container"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ CHEATSHEET ══════════════════════════ -->
+<div id="page-cheatsheet" class="page-wrapper hidden">
+  <div class="module-hero">
+    <div class="module-num">REFERÊNCIA RÁPIDA</div>
+    <div class="module-title">Cheatsheet Geral</div>
+    <div class="module-desc">Todos os comandos essenciais em um só lugar.</div>
+  </div>
+  <div class="content">
+    <div class="section-title">🖥️ Linux — CPU & Processos</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Comando</th><th>Uso</th></tr>
+        <tr><td class="td-cmd">top</td><td>CPU, memória, processos em tempo real</td></tr>
+        <tr><td class="td-cmd">ps aux --sort=-%cpu | head</td><td>Top processos por CPU</td></tr>
+        <tr><td class="td-cmd">uptime</td><td>Load average 1/5/15 min</td></tr>
+        <tr><td class="td-cmd">vmstat 1</td><td>CPU, memória, I/O em tempo real</td></tr>
+        <tr><td class="td-cmd">strace -p PID</td><td>Syscalls de um processo</td></tr>
+        <tr><td class="td-cmd">lsof -i :PORT</td><td>Quem usa qual porta</td></tr>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-top:24px;">💾 Linux — Memória</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Comando</th><th>Uso</th></tr>
+        <tr><td class="td-cmd">free -h</td><td>RAM e swap (olhe "available")</td></tr>
+        <tr><td class="td-cmd">dmesg | grep -i oom</td><td>OOM Killer matou algum processo?</td></tr>
+        <tr><td class="td-cmd">ps aux --sort=-%mem | head</td><td>Top processos por memória</td></tr>
+        <tr><td class="td-cmd">pmap -x PID</td><td>Mapa de memória de um processo</td></tr>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-top:24px;">💿 Linux — Disco</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Comando</th><th>Uso</th></tr>
+        <tr><td class="td-cmd">df -h</td><td>Espaço em disco por filesystem</td></tr>
+        <tr><td class="td-cmd">iostat -xz 1</td><td>I/O por dispositivo (%util, await)</td></tr>
+        <tr><td class="td-cmd">du -sh /var/* | sort -rh | head</td><td>O que ocupa mais espaço</td></tr>
+        <tr><td class="td-cmd">iotop -ao</td><td>Processos com mais I/O</td></tr>
+        <tr><td class="td-cmd">find / -size +500M -type f</td><td>Arquivos grandes</td></tr>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-top:24px;">🌐 Rede</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Comando</th><th>Uso</th></tr>
+        <tr><td class="td-cmd">ss -tunap</td><td>Conexões TCP com processo</td></tr>
+        <tr><td class="td-cmd">ss -tan | awk 'NR>1 {print $1}' | sort | uniq -c</td><td>Contar conexões por estado</td></tr>
+        <tr><td class="td-cmd">dig +short domain.com</td><td>Resolução DNS rápida</td></tr>
+        <tr><td class="td-cmd">dig domain.com | grep "Query time"</td><td>Latência de DNS</td></tr>
+        <tr><td class="td-cmd">curl -v -o /dev/null -s https://site.com</td><td>Debug HTTP completo</td></tr>
+        <tr><td class="td-cmd">tcpdump -i eth0 port 443</td><td>Capturar tráfego</td></tr>
+        <tr><td class="td-cmd">nc -zv host 443</td><td>Testar conectividade TCP</td></tr>
+        <tr><td class="td-cmd">traceroute host</td><td>Caminho da rede</td></tr>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-top:24px;">☸️ Kubernetes</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Comando</th><th>Uso</th></tr>
+        <tr><td class="td-cmd">kubectl get pods -A</td><td>Todos os pods em todos namespaces</td></tr>
+        <tr><td class="td-cmd">kubectl describe pod POD</td><td>Detalhes e eventos do pod</td></tr>
+        <tr><td class="td-cmd">kubectl logs -f POD</td><td>Logs em tempo real</td></tr>
+        <tr><td class="td-cmd">kubectl logs POD --previous</td><td>Logs da execução anterior</td></tr>
+        <tr><td class="td-cmd">kubectl exec -it POD -- sh</td><td>Shell dentro do pod</td></tr>
+        <tr><td class="td-cmd">kubectl top pods</td><td>CPU e memória dos pods</td></tr>
+        <tr><td class="td-cmd">kubectl get events --sort-by=.lastTimestamp</td><td>Eventos recentes do cluster</td></tr>
+        <tr><td class="td-cmd">kubectl get endpoints SVC</td><td>Verificar se service tem endpoints</td></tr>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-top:24px;">📋 Perguntas do Checklist de Incidente</div>
+    <div class="card card-accent">
+      <div class="card-body" style="font-family:var(--mono);font-size:13px;line-height:2.2;color:var(--text2);">
+        □ Qual é o sintoma exato?<br>
+        □ Quando começou? (horário preciso)<br>
+        □ O que mudou? (deploy, config, DNS, certificado)<br>
+        □ É local ou sistêmico?<br>
+        □ É intermitente ou contínuo?<br>
+        □ É reproduzível?<br>
+        □ Qual camada está com problema? (app, rede, disco, banco)<br>
+        □ Quais evidências tenho? (logs, métricas, traces)
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #pages -->
+</div><!-- end .main -->
+</div><!-- end .shell -->
+
+<script>
+// ══════════════════════ STATE ══════════════════════
+const state = {
+  currentPage: 'home',
+  completed: JSON.parse(localStorage.getItem('sre_completed') || '[]'),
+  quizScores: JSON.parse(localStorage.getItem('sre_quiz_scores') || '{}')
+};
+
+const pages = ['home','mentality','cpu','memory','disk','network','tools-net','logs','metrics','troubleshoot','incidents','kubernetes','quiz-linux','quiz-net','quiz-obs','cheatsheet'];
+const pageConfig = {
+  'home': { phase: 'Início', title: 'Visão Geral', phaseClass: 'phase-1' },
+  'mentality': { phase: 'Fase 1 — Linux', title: 'Mentalidade SRE', phaseClass: 'phase-1' },
+  'cpu': { phase: 'Fase 1 — Linux', title: 'CPU & Processos', phaseClass: 'phase-1' },
+  'memory': { phase: 'Fase 1 — Linux', title: 'Memória', phaseClass: 'phase-1' },
+  'disk': { phase: 'Fase 1 — Linux', title: 'Disco & I/O', phaseClass: 'phase-1' },
+  'network': { phase: 'Fase 2 — Rede', title: 'TCP/IP & DNS', phaseClass: 'phase-2' },
+  'tools-net': { phase: 'Fase 2 — Rede', title: 'Ferramentas de Rede', phaseClass: 'phase-2' },
+  'logs': { phase: 'Fase 3 — Obs.', title: 'Logs', phaseClass: 'phase-3' },
+  'metrics': { phase: 'Fase 3 — Obs.', title: 'Métricas & Alertas', phaseClass: 'phase-3' },
+  'troubleshoot': { phase: 'Fase 4 — Debug', title: 'Método Universal', phaseClass: 'phase-4' },
+  'incidents': { phase: 'Fase 4 — Debug', title: 'Incidentes & Postmortem', phaseClass: 'phase-4' },
+  'kubernetes': { phase: 'Fase 5 — K8s', title: 'Kubernetes', phaseClass: 'phase-5' },
+  'quiz-linux': { phase: 'Avaliação', title: 'Quiz Linux', phaseClass: 'phase-1' },
+  'quiz-net': { phase: 'Avaliação', title: 'Quiz Rede', phaseClass: 'phase-2' },
+  'quiz-obs': { phase: 'Avaliação', title: 'Quiz Troubleshooting', phaseClass: 'phase-4' },
+  'cheatsheet': { phase: 'Referência', title: 'Cheatsheet', phaseClass: 'phase-5' }
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page-wrapper').forEach(p => p.classList.add('hidden'));
+  const target = document.getElementById('page-' + id);
+  if (!target) return;
+  target.classList.remove('hidden');
+  target.classList.add('fade-in');
+  setTimeout(() => target.classList.remove('fade-in'), 400);
+  state.currentPage = id;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) {
+      n.classList.add('active');
+    }
+  });
+  const cfg = pageConfig[id] || {};
+  document.getElementById('topbar-phase').textContent = cfg.phase || '';
+  document.getElementById('topbar-phase').className = 'phase-tag ' + (cfg.phaseClass || 'phase-1');
+  document.getElementById('topbar-title').textContent = cfg.title || '';
+  window.scrollTo(0, 0);
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function markDone() {
+  const id = state.currentPage;
+  if (!state.completed.includes(id)) {
+    state.completed.push(id);
+    localStorage.setItem('sre_completed', JSON.stringify(state.completed));
+    updateProgress();
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) {
+        n.classList.add('done');
+      }
+    });
+    const btn = document.getElementById('mark-btn');
+    btn.textContent = '✓ Concluído!';
+    btn.style.background = 'var(--green)';
+    btn.style.color = '#fff';
+    btn.style.border = 'none';
+    setTimeout(() => {
+      btn.textContent = '✓ Marcar Concluído';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.border = '';
+    }, 2000);
+  }
+}
+
+function updateProgress() {
+  const total = pages.length;
+  const done = state.completed.filter(id => pages.includes(id)).length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+function switchTab(el, id) {
+  const parent = el.closest('.main');
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  parent.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const target = el.closest('.page-wrapper').querySelector('#tab-' + id);
+  if (target) target.classList.add('active');
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copiado!';
+    setTimeout(() => btn.textContent = 'copiar', 2000);
+  });
+}
+
+// ══════════════════════ QUIZ ENGINE ══════════════════════
+const quizzes = {
+  linux: [
+    {
+      q: "O que significa um iowait (wa) muito alto no comando top?",
+      opts: ["A aplicação está consumindo muita CPU", "A CPU está esperando operações de disco", "O kernel está usando muita CPU", "A memória está esgotada"],
+      ans: 1,
+      exp: "iowait (wa) representa o tempo que a CPU fica parada esperando operações de I/O (disco) completarem. Alto wa = gargalo de disco."
+    },
+    {
+      q: "Você vê 'free: 100MB' e 'available: 4GB' no free -h. O sistema está:",
+      opts: ["Com memória crítica — precise de mais RAM urgente", "Normal — available inclui cache recuperável", "Com memory leak — iniciar investigação", "Com swap em uso excessivo"],
+      ans: 1,
+      exp: "Linux usa RAM livre para cache de disco. O campo 'available' inclui o cache que pode ser liberado. 4GB available = sistema saudável."
+    },
+    {
+      q: "Um processo misteriosamente desapareceu do servidor. Qual comando verificar primeiro?",
+      opts: ["ps aux | grep processo", "top -p PID", "dmesg | grep -i oom", "journalctl -u processo"],
+      ans: 2,
+      exp: "O OOM Killer mata processos quando a memória acaba. dmesg | grep -i oom mostra se e quando isso aconteceu, e qual processo foi morto."
+    },
+    {
+      q: "Load average de 8.5 em um servidor de 4 cores significa:",
+      opts: ["50% de uso de CPU — sistema tranquilo", "CPU idle está alta — tudo OK", "Sistema saturado — mais processos esperando do que CPUs disponíveis", "É um número normal para servidores de produção"],
+      ans: 2,
+      exp: "Load average / nproc > 1.0 indica saturação. 8.5 / 4 = 2.1 — o dobro de saturação. Processos estão esperando na fila."
+    },
+    {
+      q: "Qual comando mostra as estatísticas de I/O do disco incluindo %util e await?",
+      opts: ["df -h", "iostat -xz 1", "du -sh", "lsof"],
+      ans: 1,
+      exp: "iostat -xz 1 mostra estatísticas de I/O por dispositivo em tempo real, incluindo %util (saturação) e await (latência de acesso)."
+    }
+  ],
+  net: [
+    {
+      q: "Muitas conexões em estado CLOSE_WAIT indica:",
+      opts: ["Conexões ativas normais", "DNS lento", "Bug de código — aplicação não fecha conexões", "Firewall bloqueando"],
+      ans: 2,
+      exp: "CLOSE_WAIT significa que o lado remoto fechou a conexão, mas o lado local ainda não. Acumular CLOSE_WAIT = aplicação com bug que não fecha conexões TCP."
+    },
+    {
+      q: "Qual comando mede o tempo de resolução DNS?",
+      opts: ["ping google.com", "dig google.com | grep 'Query time'", "curl -v google.com", "nc -zv google.com 53"],
+      ans: 1,
+      exp: "dig retorna 'Query time: X msec' que mostra o tempo de resolução DNS. Acima de 100ms já é suspeito; 3000ms é crítico."
+    },
+    {
+      q: "Um sistema parece 'caído' mas os processos estão rodando e a porta está aberta. O primeiro suspeito deve ser:",
+      opts: ["Memória esgotada", "CPU alta", "DNS", "Certificado expirado"],
+      ans: 2,
+      exp: "Sistemas aparentemente caídos com serviços rodando normalmente são frequentemente DNS. A aplicação não consegue resolver nomes de hosts dependentes."
+    },
+    {
+      q: "Você vê muitos pacotes com flag RST no tcpdump. Isso indica:",
+      opts: ["Conexões saudáveis encerrando normalmente", "Tráfego de broadcast", "Conexões sendo brutalmente encerradas — firewall ou serviço recusando", "Retransmissão de pacotes perdidos"],
+      ans: 2,
+      exp: "RST (reset) é um encerramento abrupto de conexão TCP. Indica que firewall está bloqueando, serviço não está ouvindo na porta, ou o remoto está recusando conexões."
+    },
+    {
+      q: "curl -o /dev/null -s -w '%{time_total}' retorna 8.2 segundos. Qual métrica verificar para isolar se o problema é DNS?",
+      opts: ["time_total", "time_connect", "time_namelookup", "time_appconnect"],
+      ans: 2,
+      exp: "time_namelookup mostra exatamente o tempo gasto na resolução DNS. Se alto, o problema está no DNS. Se baixo, o problema está em outra camada."
+    }
+  ],
+  obs: [
+    {
+      q: "Usuários reclamam de lentidão. Você vê CPU normal, memória OK, disco OK. O que investigar?",
+      opts: ["Aumentar recursos do servidor", "Verificar DNS e latência de rede", "Reiniciar a aplicação", "Escalar horizontalmente"],
+      ans: 1,
+      exp: "Se os recursos locais estão OK mas há lentidão, investigar DNS (resolução lenta?) e latência de rede (dependências externas lentas?) é o próximo passo lógico."
+    },
+    {
+      q: "Qual é a primeira pergunta a fazer durante um incidente de produção?",
+      opts: ["Como escalar para resolver rapidamente?", "Quem colocou o código em produção?", "O que mudou recentemente?", "Quanto tempo vai durar o incidente?"],
+      ans: 2,
+      exp: "'O que mudou?' resolve a maioria dos incidentes. Deploy, DNS, certificado, configuração, feature flag — a mudança é o gatilho mais comum."
+    },
+    {
+      q: "Um pod Kubernetes está em CrashLoopBackOff. Qual é a PRIMEIRA ação correta?",
+      opts: ["kubectl delete pod para forçar recreação", "kubectl logs pod --previous para ver o último crash", "kubectl rollout restart deployment", "Aumentar os memory limits"],
+      ans: 1,
+      exp: "kubectl logs --previous mostra os logs da execução anterior antes do crash. Esta é a evidência que você precisa. Deletar ou reiniciar destruiria essa evidência."
+    },
+    {
+      q: "Você tem alertas disparando para CPU acima de 80% constantemente. A equipe parou de tomar os alertas a sério. O problema é:",
+      opts: ["CPU realmente está sempre alta — precisa de mais servidor", "O threshold de 80% está correto mas o sistema está degradado", "Alert fatigue — alertas não são acionáveis ou estão mal configurados", "O monitoramento está com bug"],
+      ans: 2,
+      exp: "Alert fatigue acontece quando há muitos alertas não acionáveis. CPU 80% pode ser completamente normal. Um bom alerta especifica: CPU alta + latência impactada + por X minutos."
+    },
+    {
+      q: "Em um postmortem, a conclusão foi 'culpa do Dev que fez o deploy'. Isso indica:",
+      opts: ["Postmortem bem feito — responsável identificado", "Cultura de blame — o processo falhou, não a pessoa", "Ação corretiva clara — remover o Dev do processo", "Root cause correto — foco em treinamento"],
+      ans: 1,
+      exp: "Postmortem blameless reconhece que qualquer pessoa com as mesmas informações tomaria a mesma decisão. O problema é o sistema (falta de testes, review, deploy gate) — não a pessoa."
+    }
+  ]
+};
+
+function buildQuiz(containerId, quizKey) {
+  const container = document.getElementById(containerId);
+  if (!container || container.dataset.built) return;
+  container.dataset.built = 'true';
+  const questions = quizzes[quizKey];
+  let current = 0;
+  let score = 0;
+  let answered = false;
+
+  function render() {
+    const q = questions[current];
+    container.innerHTML = `
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <span class="tag tag-purple">Pergunta ${current+1} de ${questions.length}</span>
+          <span style="font-family:var(--mono);font-size:12px;color:var(--text3);">Pontos: ${score}/${current}</span>
+        </div>
+        <div class="quiz-q">${q.q}</div>
+        <div class="quiz-opts" id="opts-wrap">
+          ${q.opts.map((o, i) => `
+            <div class="quiz-opt" onclick="selectOpt(this, ${i}, ${q.ans}, '${containerId}', ${current})" data-idx="${i}">
+              <div class="opt-letter">${String.fromCharCode(65+i)}</div>
+              <div>${o}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="quiz-feedback" id="qfeedback"></div>
+        <div class="quiz-nav" style="margin-top:20px;">
+          <span class="quiz-progress-text">${current+1}/${questions.length} perguntas</span>
+          <button class="btn btn-primary hidden" id="next-btn" onclick="nextQ('${containerId}', '${quizKey}', ${current}, ${questions.length})">
+            ${current < questions.length - 1 ? 'Próxima →' : 'Ver resultado'}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  window['selectOpt'] = function(el, idx, ans, cid, qidx) {
+    if (el.classList.contains('disabled') || el.querySelector('.opt-letter').textContent === '✓') return;
+    const opts = el.parentNode.querySelectorAll('.quiz-opt');
+    opts.forEach(o => o.classList.add('disabled'));
+    const feedback = document.getElementById('qfeedback');
+    if (idx === ans) {
+      el.classList.add('correct');
+      score++;
+      feedback.className = 'quiz-feedback show good';
+      feedback.innerHTML = '✅ ' + questions[qidx].exp;
+    } else {
+      el.classList.add('wrong');
+      opts[ans].classList.add('correct');
+      feedback.className = 'quiz-feedback show bad';
+      feedback.innerHTML = '❌ ' + questions[qidx].exp;
+    }
+    document.getElementById('next-btn').classList.remove('hidden');
+  };
+
+  window['nextQ'] = function(cid, qk, cur, total) {
+    if (cur < total - 1) {
+      current++;
+      render();
+    } else {
+      showScore(cid, qk, score, total);
+    }
+  };
+
+  function showScore(cid, qk, sc, tot) {
+    const pct = Math.round((sc/tot)*100);
+    const grade = pct >= 80 ? ['🏆','Excelente!','var(--green)'] : pct >= 60 ? ['⭐','Bom progresso','var(--amber)'] : ['📚','Continue estudando','var(--red)'];
+    container.innerHTML = `
+      <div class="score-panel fade-in">
+        <div class="score-ring" style="border-color:${grade[2]};color:${grade[2]};">${pct}%</div>
+        <h3>${grade[0]} ${grade[1]}</h3>
+        <p>${sc} de ${tot} respostas corretas</p>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn-outline" onclick="resetQuiz('${cid}','${qk}')">↺ Refazer</button>
+          ${pct >= 60 ? '<button class="btn btn-success" onclick="showPage(\'cheatsheet\')">Ver Cheatsheet →</button>' : ''}
+        </div>
+      </div>
+    `;
+    const scores = JSON.parse(localStorage.getItem('sre_quiz_scores') || '{}');
+    scores[qk] = pct;
+    localStorage.setItem('sre_quiz_scores', JSON.stringify(scores));
+    if (pct >= 70) { markDone(); }
+  }
+
+  window['resetQuiz'] = function(cid, qk) {
+    const c = document.getElementById(cid);
+    c.dataset.built = '';
+    current = 0; score = 0;
+    buildQuiz(cid, qk);
+  };
+
+  render();
+}
+
+// ══════════════════════ INIT ══════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  updateProgress();
+  // Restore completed states in nav
+  state.completed.forEach(id => {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) {
+        n.classList.add('done');
+      }
+    });
+  });
+});
+
+// Build quizzes on demand
+const quizObserver = new MutationObserver(() => {
+  if (!document.getElementById('page-quiz-linux').classList.contains('hidden')) buildQuiz('quiz-linux-container', 'linux');
+  if (!document.getElementById('page-quiz-net').classList.contains('hidden')) buildQuiz('quiz-net-container', 'net');
+  if (!document.getElementById('page-quiz-obs').classList.contains('hidden')) buildQuiz('quiz-obs-container', 'obs');
+});
+document.querySelectorAll('.page-wrapper').forEach(p => quizObserver.observe(p, { attributes: true, attributeFilter: ['class'] }));
+</script>
+</body>
+</html>
